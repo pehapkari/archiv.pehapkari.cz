@@ -6,6 +6,8 @@ node_modules/
 public/bundles/
 public/build/
 
+output/
+
 ## Docker
 .env.local
 .env.local.php
