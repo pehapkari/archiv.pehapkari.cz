@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="cs">
+    <head>
+        <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="description" content="Otevřené místo pro všechny PHP programátory">
+<meta name="keywords" content="PHP, komunita, programování, srazy, školení, blog, články">
+<meta name="author" content="https://pehapkari.cz">
+<meta name="robots" content="index, follow">
+
+<meta property="og:image" content="/assets/images/meetup.jpg">
+<meta property="fb:pages" content="918297778220033" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<link rel="alternate" type="application/rss+xml" title="Péhápkaři.cz Blog RSS" href="/rss.xml">
+
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap&subset=latin-ext" rel="stylesheet">
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<link href="/favicon.ico" rel="shortcut icon">
+
+<title>
+     Tipy na potopení projektu: #2 Nebavte se s uživatelem | Děláš v PHP? Jsi jedním z nás
+</title>
+
+<link rel="stylesheet" href="/build/css/app.css">
+
+<link rel="stylesheet" href="/assets/prism/prism.css">
+<link rel="stylesheet" href="/assets/prism/prism-custom.css">
+
+<link rel="stylesheet" href="https://use.typekit.net/jmg2upk.css">
+
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i|Ubuntu+Mono&amp;subset=latin-ext" rel="stylesheet">
+
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    </head>
+
+    <body id="">
+        <nav id="ph-nav" class="navbar fixed-top navbar-expand navbar-light bg-light ph-nav border-bottom hidden-sm-down">
+    <div class="container">
+        <a class="ph-nav__logo" href="/">
+            <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+            <br>
+            <p>Péhápkaři</p>
+        </a>
+
+        <div id="top-menu-search" class="hidden-md-down">
+            <form method="get" action="https://www.google.com/search" itemprop="potentialAction" itemscope="" itemtype="http://schema.org/SearchAction">
+    <meta itemprop="target" content="https://www.google.com/search?q={q}"/>
+    <input name="sitesearch" value="pehapkari.cz" type="hidden"/>
+    <input itemprop="query-input" type="text" id="search-query" class="form-control" required="required" name="q" placeholder="Napiš co hledáš..." autocomplete="off"/>
+</form>
+        </div>
+
+        <ul class="navbar-nav ml-auto hidden-sm-down" id="menu">
+            <li>
+                <a class="active" href="/blog">
+                    Blog
+                </a>
+            </li>
+            <li>
+                <a class="" href="/prehaj-si-prednasku">
+                    Videa
+                </a>
+            </li>
+            <li class="pr-0">
+                <a class="" href="/kontakt">
+                    Kontakt
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div id="mobile-menu" class="row ml-0 mr-0 text-center hidden-md-up border-bottom">
+    <a href="/" class="ph-nav__logo col-3 ">
+        <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+    </a>
+
+    <a href="/prehaj-si-prednasku" class="col-3 ">
+        Videa
+    </a>
+    <a href="/blog" class="col-3 ">
+        Blog
+    </a>
+</div>
+
+                    <div id="main">
+                
+
+                    <div class="container" id="article">
+        <h1>Tipy na potopení projektu: #2 Nebavte se s uživatelem</h1>
+
+        <strong>Petr &#039;PePa&#039; Pavel</strong>
+        &nbsp;
+        <time datetime="2018-10-Wed">
+            10. 10. 2018
+        </time>
+
+        <br>
+
+        <div class="card mt-4 mb-4">
+            <div class="card-body text-bigger">
+                <p>Existuje tisíc a jeden způsobů, jak podělat projekt, a v našem seriálu si některé ukážeme. Dnes bych rád mluvil o jednom zvláštním živočichovi. Hodně programátorů o něm slyšelo, ale jen málokdo ho viděl. Přivítejte na scénu <strong>uživatele</strong>.</p>
+            </div>
+        </div>
+
+        <p><strong>Zlaté pravidlo potápěče</strong> projektů zní: <strong>&quot;Hlavně se moc nevyptávat.&quot;</strong> Takhle to mám udělat, je jejich vina, že to nedává smysl. Kdo ví, co by mi ještě řekli.</p>
+<h2>Pohádka O kohoutkovi a slepičce</h2>
+<p>Docházel jsem mentorovat do firmy, kde jsem se studenty párově programoval. Jednou nám do klína spadl export stavu pokladen pro účetní. Na první pohled <strong>brnkačka, ale něco mi na zadání nesedělo</strong>.</p>
+<p>Ptali jsme se <strong>autora ticketu</strong>, který nás odkázal na <strong>produktového manažera</strong>. Ten nám vysvětlil, že to chce dodělat jeden konkrétní zákazník - ale že vlastně detaily taky neví. Takže náš produkťák zavolal jejich <strong>projekťákovi</strong> a chvíli spolu moudře hovořili. Když nám pak shrnul výsledek, ukázalo se, že tam pořád ještě něco nehraje. On totiž <strong>ani ten projekťák vlastně nevěděl</strong>, jak se to bude používat.</p>
+<p>&quot;Tak <strong>brnkneme jejich uživateli</strong>, ne?&quot; prohlásil jsem nevinně a bylo vidět, jak se mezi zúčastněnými šíří panika jako rázová vlna po výbuchu. Viděl jsem zbytek aplikace a tušil jsem, že to jen tak lehce neprojde. Oči všech se mlčky stočily na produktového manažera.</p>
+<p>&quot;...no, to já je zase nechci moc otravovat,&quot; ošíval se. &quot;Pojďme to <strong>udělat tak, jak psali v zadání</strong>. A když to nebude ono, <strong>upravíme to podle jejich feedbacku</strong>.&quot;</p>
+<p>Měl jsem <strong>pokušení to nechat být</strong>. Byl jsem tu na návštěvě, tenhle oheň mě nepálil. Ani jsem si nebyl jistý, jak přesvědčit dva lidi, kteří jsou v hierarchii nade mnou. Navíc to vlastně <strong>dávalo smysl... nebo ne?</strong></p>
+<p>Nakonec jsem se <strong>hecnul</strong>. Začal jsem popisovat chudáka účetní, jak sedí v nějaké místnosti bez oken, nikdo se o ni nezajímá. Tak trochu jako programátor, že? ;-) A teď si představte, že jí někdo zavolá a bude se <strong>upřímně zajímat</strong> o to, jakým způsobem používá &quot;tu blbou aplikaci&quot;. Získáme <strong>spoustu užitečných informací</strong>! Napíšeme tu novou fíčuru tak, aby se <strong>nedala používat špatně</strong>. Ušetříme jí hodiny času a dostaneme instantní karma boost +100. Navíc účetní dokáží myslet strukturovaně, takže to ani <strong>nebude bolet</strong>.</p>
+<p>Produktový manažer se naštěstí nenechal přemlouvat a <strong>za pár minut jsme měli jasno</strong>. Účetní potřebovala něco trochu jiného, což vyjasnilo všechno to zmatení. <strong>Sami bychom na to nikdy nepřišli</strong>.</p>
+<p>Se studentem jsme pak už jen <strong>napsali dodatek k zadání</strong> a citací @produkťáka si ho <strong>nechali schválit</strong>.</p>
+<h2>Nekouše</h2>
+<p>Zadávání projektu často připomíná <strong>hru na tichou poštu</strong>. Uživatel něco potřebuje a přemluví šéfa. Pak <strong>čeká, někdy i měsíce</strong>, než jeho zadání probublá řadou prostředníků až k programátorovi. Napsal to dobře? Pochybnosti v něm hlodají. Snad se zeptají, kdyby ne. Představte si tu frustraci, když pak <strong>dostane novou verzi - a je nepoužitelná</strong>. Má někomu napsat a <strong>zase čekat</strong> další měsíce? Jak dlouho byste to vydrželi vy?</p>
+<h2>Takže si to shrneme</h2>
+<ol>
+<li>
+<p>Uživatel ví. Je zbytečné plýtvat časem a penězi zadavatele na slepé cesty založené na dohadech.</p>
+</li>
+<li>
+<p><a href="https://pehapkari.cz/blog/2017/10/24/komunikace-se-zakaznikem-anti-tipy-1-komunikacni-kanal/">Mluvme spolu</a>. Když jsou nejasnosti, jeden telefonát vydá za deset e-mailů a dlouhé dny frustrací.</p>
+</li>
+<li>
+<p>Při zadávání rovnou přiložte kontakt na uživatele. Vyšlete tím signál.</p>
+</li>
+</ol>
+<h2>Pro tip</h2>
+<p><strong>Export do Excelu je &quot;specification smell&quot;.</strong> Není to totiž konečný produkt, ale vždy <strong>polotovar</strong>, se kterým uživatel teprve bude něco dělat. Excel je pro hodně lidí <strong>horizontem představivosti</strong>.</p>
+<p>Bude z něj něco počítat? Kreslit graf? Průběžně archivovat, aby měl historii změn? Pojďme mu poskytnout <strong>rovnou to, co ve skutečnosti potřebuje</strong>.</p>
+<h2>Co dál</h2>
+<p>Příští tip bude o špatném zadání. Výborná zbraň pro zpoždění nebo úplné rozstřelení projektu :-)</p>
+<p><em>O volbě správného komunikačního kanálu i jiných věcech si <strong>přijďte popovídat na <a href="https://www.naucmese.cz/petr-pepa-pavel">mé školení</a></strong>.</em></p>
+
+        <br>
+
+        <div class="container">
+            <div id="disqus_thread"></div>
+
+<script type="text/javascript">
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//pehapkari.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+        </div>
+
+        <br>
+    </div>
+
+            </div>
+        
+        <div id="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-6 mt-3 mt-md-0">
+                <p class="mb-2">Web Péhápkaři.cz pohání <a href="https://symfony.com/">Symfony</a> a najdeš ho na <a href="https://github.com/pehapkari/pehapkari.cz">Githubu</a>.</p>
+
+                                            </div>
+
+            <div class="col-12 col-md-6 mt-4 mt-md-0">
+                <ul id="socials" class="pull-right">
+                    <li>
+                        <a href="https://facebook.com/pehapkari">
+                            <em class="fab fa-2x fa-facebook"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://twitter.com/pehapkari">
+                            <em class="fab fa-2x fa-twitter"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/friends-of-php-prague/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Praha</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/Pehapkari-Brno/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Brno</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://github.com/pehapkari">
+                            <em class="fab fa-2x fa-github"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ">
+                            <em class="fab fa-2x fa-slack"></em>
+                        </a>
+                        <p>
+                            <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ/">
+                                <span class="hidden-sm-down">Pozvi se</span>
+                                <span class="hidden-md-up">Pozvi</span>
+                            </a>
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="footer_body">
+            <div class="row">
+                <div class="col-6 col-md-4 mb-4 mb-md-0">
+                    <h3>O nás</h3>
+
+                    <ul class="bottom_menu">
+                        <li>
+                            <a href="/kontakt">Kontakt</a>
+                        </li>
+
+                        <li>
+                            <a href="/for-speakers">Pro speakry</a>
+                        </li>
+
+                        <li>
+                            <a href="https://github.com/pehapkari/pehapkari.cz/tree/master/public/assets/pehapkari_logo">Logo</a>
+                        </li>
+
+                        <li>
+                            <a href="/rss.xml">RSS blogu</a>
+                        </li>
+
+                        <li>
+                            <a href="http://bit.ly/pehapkari-newsletter">Sleduj Newsletter</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/build/js/app.js"></script>
+
+<script
+    src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
+<script>
+    $('document').ready(function() {
+        var typed = new Typed('#typed',{
+            stringsElement: '#typed-strings',
+            typeSpeed: 50,
+            backDelay: 1400,
+        });
+    });
+</script>
+
+<script src="/assets/prism/prism.js"></script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-89860072-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-89860072-1');
+</script>
+    </body>
+</html>

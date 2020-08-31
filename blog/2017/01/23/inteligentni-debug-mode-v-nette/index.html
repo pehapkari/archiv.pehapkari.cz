@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="cs">
+    <head>
+        <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="description" content="Otevřené místo pro všechny PHP programátory">
+<meta name="keywords" content="PHP, komunita, programování, srazy, školení, blog, články">
+<meta name="author" content="https://pehapkari.cz">
+<meta name="robots" content="index, follow">
+
+<meta property="og:image" content="/assets/images/meetup.jpg">
+<meta property="fb:pages" content="918297778220033" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<link rel="alternate" type="application/rss+xml" title="Péhápkaři.cz Blog RSS" href="/rss.xml">
+
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap&subset=latin-ext" rel="stylesheet">
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<link href="/favicon.ico" rel="shortcut icon">
+
+<title>
+     Inteligentní debug mode v Nette | Děláš v PHP? Jsi jedním z nás
+</title>
+
+<link rel="stylesheet" href="/build/css/app.css">
+
+<link rel="stylesheet" href="/assets/prism/prism.css">
+<link rel="stylesheet" href="/assets/prism/prism-custom.css">
+
+<link rel="stylesheet" href="https://use.typekit.net/jmg2upk.css">
+
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i|Ubuntu+Mono&amp;subset=latin-ext" rel="stylesheet">
+
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    </head>
+
+    <body id="">
+        <nav id="ph-nav" class="navbar fixed-top navbar-expand navbar-light bg-light ph-nav border-bottom hidden-sm-down">
+    <div class="container">
+        <a class="ph-nav__logo" href="/">
+            <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+            <br>
+            <p>Péhápkaři</p>
+        </a>
+
+        <div id="top-menu-search" class="hidden-md-down">
+            <form method="get" action="https://www.google.com/search" itemprop="potentialAction" itemscope="" itemtype="http://schema.org/SearchAction">
+    <meta itemprop="target" content="https://www.google.com/search?q={q}"/>
+    <input name="sitesearch" value="pehapkari.cz" type="hidden"/>
+    <input itemprop="query-input" type="text" id="search-query" class="form-control" required="required" name="q" placeholder="Napiš co hledáš..." autocomplete="off"/>
+</form>
+        </div>
+
+        <ul class="navbar-nav ml-auto hidden-sm-down" id="menu">
+            <li>
+                <a class="active" href="/blog">
+                    Blog
+                </a>
+            </li>
+            <li>
+                <a class="" href="/prehaj-si-prednasku">
+                    Videa
+                </a>
+            </li>
+            <li class="pr-0">
+                <a class="" href="/kontakt">
+                    Kontakt
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div id="mobile-menu" class="row ml-0 mr-0 text-center hidden-md-up border-bottom">
+    <a href="/" class="ph-nav__logo col-3 ">
+        <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+    </a>
+
+    <a href="/prehaj-si-prednasku" class="col-3 ">
+        Videa
+    </a>
+    <a href="/blog" class="col-3 ">
+        Blog
+    </a>
+</div>
+
+                    <div id="main">
+                
+
+                    <div class="container" id="article">
+        <h1>Inteligentní debug mode v Nette</h1>
+
+        <strong>Tomáš Jacík</strong>
+        &nbsp;
+        <time datetime="2017-01-Mon">
+            23. 1. 2017
+        </time>
+
+        <br>
+
+        <div class="card mt-4 mb-4">
+            <div class="card-body text-bigger">
+                <p>Jak se poprat se zapínáním debug módu při vývoji a jeho vypnutím na produkci? A co debug mód v konzoli? Pojďme se podívat, jak to řešit lépe.</p>
+            </div>
+        </div>
+
+        <h2>Jak se to běžně dělává?</h2>
+<h3>1. Dočasná úprava bootstrap.php</h3>
+<p>Často jsem se setkal, že programátoři při vývoji zapínají debug mód přímo
+v <code>bootstrap.php</code> prostým zavoláním:</p>
+<pre><code class="language-php">$configurator-&gt;setDebugMode(TRUE);</code></pre>
+<p><strong>Výhody:</strong> Je to jistě nejjednodušší řešení a debug mód funguje všude, včetně konzole.</p>
+<p><strong>Nevýhody:</strong> Snadno se omylem commitne zapnutý debug do produkce.</p>
+<h3>2. Výčet IP adres</h3>
+<p>Do metody <code>setDebugMode()</code> jde také předat seznam IP adres, pro které se debug mód zapne:</p>
+<pre><code class="language-php">$configurator-&gt;setDebugMode(['1.1.1.1', '2.2.2.2']);</code></pre>
+<p>Jak ale potom zapnout debug mód pro konzoli? Tam přece IP adresu nemáme. Lze to přidáním hostname
+našeho stroje do seznamu IP:</p>
+<pre><code class="language-php">$configurator-&gt;setDebugMode(['1.1.1.1', '2.2.2.2', 'myhostname']);</code></pre>
+<p><strong>Výhody:</strong> Nenasadíte debug na produkci nechtěným commitem.</p>
+<p><strong>Nevýhody:</strong> Pokud pracujete na více strojích nebo v týmu, tento výčet může snadno narůst a ztratíte
+v něm přehled. Může se také často měnit a tak se stále dokola upravuje kód kvůli debug módu. Nelze
+použít, pokud máte sdílenou IP adresu. Musíte udržovat výčet hostname vývojových strojů, aby fungoval
+debug i v konzoli.</p>
+<h3>3. Prázdný výčet</h3>
+<p>Debug lze povolit i s prázným výčtem:</p>
+<pre><code class="language-php">$configurator-&gt;setDebugMode([]);</code></pre>
+<p>Nette pak do něj automaticky přidá IP adresy <code>127.0.0.1</code> a <code>::1</code></p>
+<p><strong>Výhody:</strong> Nenasadíte debug na produkci nechtěným commitem.</p>
+<p><strong>Nevýhody:</strong> Musíte mít vývojové prostředí nastaveno tak, že se hostname aplikace vždy přeloží na jednu
+z daných IP.</p>
+<h3>4. Nastavení cokie</h3>
+<p>Debug mód Nette zapne i při přítomnosti určité cookie:</p>
+<pre><code class="language-php">// Nasetování cookie
+setcookie('nette-debug', 'mysecret', strtotime('1 years'), '/', '', '', TRUE);
+
+// Zapnutí debugu podle cookie a IP
+$configurator-&gt;setDebugMode('mysecret@1.1.1.1');</code></pre>
+<p><strong>Výhody:</strong> Lze použít, i když máte sdílenou IP adresu. Lze zapnout debug mód trvale pro vývojový stroj
+a podmíněně na produkci.</p>
+<p><strong>Nevýhody:</strong> Musíte mít v aplikaci zabezpečené místo, které vám cookie nasetuje. Krom sdílené IP stále
+stejné nevýhody jako postup 2.</p>
+<h2>Pozdravte proměnné prostředí</h2>
+<p>Proměnné prostředí, neboli environmental variables jsou definovány operačním systémem. Můžeme si ale také
+přidat vlastní a jimi zapínání debug módu řídit. Jak to udělat? Zapíšeme do <code>bootstrap.php</code> následující kód:</p>
+<pre><code class="language-php">if (getenv('NETTE_DEVEL') === '1') {
+    $configurator-&gt;setDebugMode(TRUE);
+}</code></pre>
+<p>Tím zajistíme, že při přítomnosti proměnné prostředí <code>NETTE_DEVEL</code> a jejím nastavení na hodnotu <code>1</code> se nám
+debug mód zapne vždy. Aby to fungovalo však musíme tuto proměnnou někde nastavit. Jak to udělat se
+liší podle toho, jak máme PHP nainstalované.</p>
+<h3>PHP jako FPM</h3>
+<p>Pro PHP-FPM proměnnou nejlépe nastavíme v konfiguraci poolu. V mém případě mám konfiguraci hlavního poolu
+v souboru <code>/etc/php/7.0/fpm/pool.d/www.conf</code>. Nastavení proměnné pak vypadá takto:</p>
+<pre><code class="language-ini">env[NETTE_DEVEL] = 1</code></pre>
+<p>Po nastavení nezapomeňte PHP-FPM restartovat.</p>
+<h3>PHP jako modul Apache</h3>
+<p>Pokud máte PHP jako modul webserveru Apache, nejlépe proměnnou nastavíte ve VirtualHostu aplikace:</p>
+<pre><code class="language-bash">&lt;VirtualHost *:80&gt;
+
+    # ...
+
+    SetEnv NETTE_DEVEL 1
+
+    # ...
+
+&lt;/VirtualHost&gt;</code></pre>
+<p>Před restartem Apache si zkontrolujte, zda máte povolen modul <code>mod_env</code>.</p>
+<h4>PHP z konzole</h4>
+<p>Pokud používáte bash, nejvíce se mi osvědčilo nastavit proměnnou v souboru <code>~/.bashrc</code> takto:</p>
+<pre><code class="language-bash">export NETTE_DEVEL=1</code></pre>
+<p>Nezapomeňte, že se proměnná nastaví až při novém načtení. Buďto tedy zavřete a znovu otevřete shell,
+nebo spusťte příkaz <code>source ~/.bashrc</code>.</p>
+<p>Nyní vám poběží debug mód i při spouštění konzolových příkazů. Navíc jej ale sndno zapnete i na prodkčním
+serveru, pokud potřebujete rychle zjistit, proč nějaký konzolový příkaz neběží:</p>
+<pre><code class="language-bash">$ NETTE_DEVEL=1 php /cesta/k/nette/index.php</code></pre>
+<p>Pro logičtější spouštění konzole si pak v aplikaci vždy vytvořím ve složce <code>bin</code> soubor <code>console</code> a
+nastavím mu práva ke spuštění:</p>
+<pre><code class="language-php">#!/usr/bin/env php
+&lt;?php
+
+$container = require __DIR__ . '/../app/bootstrap.php';
+$container-&gt;getByType(Nette\Application\Application::class)-&gt;run();</code></pre>
+<h3>Proč právě takto?</h3>
+<ul>
+<li>Nemusím hlídat dočasné úpravy v <code>bootstrap.php</code></li>
+<li>Nemusím řešit seznamy IP adres a hostnames, pro které se debug mód zapne</li>
+<li>Na dev stroji mám debug mód vždy zaplý pro všechny své aplikace a to i pro konzoli</li>
+<li>Na ostrém serveru je debug mód vždy vyplý, ale jde jej jednoduše dočasně zapnout bez zásahu do kódu</li>
+<li>Na ostrém serveru mohu jednoduše spuštět konzolové příkazy v debug módu opět bez úprav kódu</li>
+</ul>
+<h3>Nevýhody?</h3>
+<ul>
+<li>Nelze zapnout debug mód na produkci jen pro jediného uživatele webu</li>
+<li>Musíte proměnnou <code>NETTE_DEBUG</code> nastavit v konfiguračních souborech webserveru
+a shellu.</li>
+</ul>
+<p>Tohle jistě není jediný, ani ten nejlepší přístup, jak se s tímto poprat. Já ho však používám již několik
+let a plně mi vyhovuje. Jak to ve svých aplikacích řešíte vy?</p>
+
+        <br>
+
+        <div class="container">
+            <div id="disqus_thread"></div>
+
+<script type="text/javascript">
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//pehapkari.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+        </div>
+
+        <br>
+    </div>
+
+            </div>
+        
+        <div id="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-6 mt-3 mt-md-0">
+                <p class="mb-2">Web Péhápkaři.cz pohání <a href="https://symfony.com/">Symfony</a> a najdeš ho na <a href="https://github.com/pehapkari/pehapkari.cz">Githubu</a>.</p>
+
+                                            </div>
+
+            <div class="col-12 col-md-6 mt-4 mt-md-0">
+                <ul id="socials" class="pull-right">
+                    <li>
+                        <a href="https://facebook.com/pehapkari">
+                            <em class="fab fa-2x fa-facebook"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://twitter.com/pehapkari">
+                            <em class="fab fa-2x fa-twitter"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/friends-of-php-prague/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Praha</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/Pehapkari-Brno/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Brno</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://github.com/pehapkari">
+                            <em class="fab fa-2x fa-github"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ">
+                            <em class="fab fa-2x fa-slack"></em>
+                        </a>
+                        <p>
+                            <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ/">
+                                <span class="hidden-sm-down">Pozvi se</span>
+                                <span class="hidden-md-up">Pozvi</span>
+                            </a>
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="footer_body">
+            <div class="row">
+                <div class="col-6 col-md-4 mb-4 mb-md-0">
+                    <h3>O nás</h3>
+
+                    <ul class="bottom_menu">
+                        <li>
+                            <a href="/kontakt">Kontakt</a>
+                        </li>
+
+                        <li>
+                            <a href="/for-speakers">Pro speakry</a>
+                        </li>
+
+                        <li>
+                            <a href="https://github.com/pehapkari/pehapkari.cz/tree/master/public/assets/pehapkari_logo">Logo</a>
+                        </li>
+
+                        <li>
+                            <a href="/rss.xml">RSS blogu</a>
+                        </li>
+
+                        <li>
+                            <a href="http://bit.ly/pehapkari-newsletter">Sleduj Newsletter</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/build/js/app.js"></script>
+
+<script
+    src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
+<script>
+    $('document').ready(function() {
+        var typed = new Typed('#typed',{
+            stringsElement: '#typed-strings',
+            typeSpeed: 50,
+            backDelay: 1400,
+        });
+    });
+</script>
+
+<script src="/assets/prism/prism.js"></script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-89860072-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-89860072-1');
+</script>
+    </body>
+</html>

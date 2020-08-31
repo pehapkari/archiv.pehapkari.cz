@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="cs">
+    <head>
+        <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="description" content="Otevřené místo pro všechny PHP programátory">
+<meta name="keywords" content="PHP, komunita, programování, srazy, školení, blog, články">
+<meta name="author" content="https://pehapkari.cz">
+<meta name="robots" content="index, follow">
+
+<meta property="og:image" content="/assets/images/meetup.jpg">
+<meta property="fb:pages" content="918297778220033" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<link rel="alternate" type="application/rss+xml" title="Péhápkaři.cz Blog RSS" href="/rss.xml">
+
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap&subset=latin-ext" rel="stylesheet">
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<link href="/favicon.ico" rel="shortcut icon">
+
+<title>
+     Domain-Driven Design, part 6 - Doctrine Repository | Děláš v PHP? Jsi jedním z nás
+</title>
+
+<link rel="stylesheet" href="/build/css/app.css">
+
+<link rel="stylesheet" href="/assets/prism/prism.css">
+<link rel="stylesheet" href="/assets/prism/prism-custom.css">
+
+<link rel="stylesheet" href="https://use.typekit.net/jmg2upk.css">
+
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i|Ubuntu+Mono&amp;subset=latin-ext" rel="stylesheet">
+
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    </head>
+
+    <body id="">
+        <nav id="ph-nav" class="navbar fixed-top navbar-expand navbar-light bg-light ph-nav border-bottom hidden-sm-down">
+    <div class="container">
+        <a class="ph-nav__logo" href="/">
+            <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+            <br>
+            <p>Péhápkaři</p>
+        </a>
+
+        <div id="top-menu-search" class="hidden-md-down">
+            <form method="get" action="https://www.google.com/search" itemprop="potentialAction" itemscope="" itemtype="http://schema.org/SearchAction">
+    <meta itemprop="target" content="https://www.google.com/search?q={q}"/>
+    <input name="sitesearch" value="pehapkari.cz" type="hidden"/>
+    <input itemprop="query-input" type="text" id="search-query" class="form-control" required="required" name="q" placeholder="Napiš co hledáš..." autocomplete="off"/>
+</form>
+        </div>
+
+        <ul class="navbar-nav ml-auto hidden-sm-down" id="menu">
+            <li>
+                <a class="active" href="/blog">
+                    Blog
+                </a>
+            </li>
+            <li>
+                <a class="" href="/prehaj-si-prednasku">
+                    Videa
+                </a>
+            </li>
+            <li class="pr-0">
+                <a class="" href="/kontakt">
+                    Kontakt
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div id="mobile-menu" class="row ml-0 mr-0 text-center hidden-md-up border-bottom">
+    <a href="/" class="ph-nav__logo col-3 ">
+        <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+    </a>
+
+    <a href="/prehaj-si-prednasku" class="col-3 ">
+        Videa
+    </a>
+    <a href="/blog" class="col-3 ">
+        Blog
+    </a>
+</div>
+
+                    <div id="main">
+                
+
+                    <div class="container" id="article">
+        <h1>Domain-Driven Design, part 6 - Doctrine Repository</h1>
+
+        <strong>Svaťa Šimara</strong>
+        &nbsp;
+        <time datetime="2018-03-Wed">
+            7. 3. 2018
+        </time>
+
+        <br>
+
+        <div class="card mt-4 mb-4">
+            <div class="card-body text-bigger">
+                <p>Now we will implement an actual relational database repository using Doctrine 2 and as always we'll try to test it.</p>
+            </div>
+        </div>
+
+        <p>The repository is a persistent collection that we know from <a href="/blog/2018/02/28/domain-driven-design-repository/">repository article</a>.
+We expect that we know the cart model from <a href="/blog/2018/01/06/domain-driven-design-simplify-object-model/">model</a> and <a href="/blog/2018/02/21/domain-driven-design-implementation/">implementation</a> articles.
+But it doesn't make any harm if we repeat the cart model again.</p>
+<p><img src="/assets/images/posts/2018/ddd-doctrine-repository/cart_aggregate.png" alt="cart aggregate" /></p>
+<h2>Relational Model</h2>
+<p>While talking about the domain design we were thinking in object model all the time.
+But if we want to use a relational database, we have to think in relations again.
+So we have a cart entity which has zero or more item entities.
+Of course, both entities have couple of their own attributes.</p>
+<p><img src="/assets/images/posts/2018/ddd-doctrine-repository/cart_er.png" alt="cart has items ER diagram" /></p>
+<h3>Independent Item</h3>
+<p>The relation between the item and the cart is many-to-one.
+This relation needs the item to know which cart it is in.
+But we have a different approach in our model.
+The cart knows about the item but the item has no idea about the cart.
+This thinking changes the relation into many-to-many.</p>
+<p><img src="/assets/images/posts/2018/ddd-doctrine-repository/cart_er_independent.png" alt="cart has items ER diagram with joining table" /></p>
+<p>This model allows us to use items as a collection in PHP.
+The original model would force us to pass the cart into the item.
+It would change the domain model and that is something we want to avoid as long as it is possible.</p>
+<h2>Doctrine Influence on Object Model</h2>
+<p>The Doctrine allows us to store pure domain objects, which si great.
+But still, it has an influence on the implemented model.</p>
+<h3>Identifier</h3>
+<p>All persisted entities must have an identifier, an identifier which is unique in the whole system.
+This requirement influences the cart item which doesn't have an identifier yet.
+We know that inside the cart the item is identified by the product identifier.
+But there can be items in different carts that hold the same product identifier.
+The product doesn't identify the item in the whole system, so we must find another way to identify the item.
+Since this requirement is here just because of the Doctrine, we can also let the Doctrine to deal with these artificial identifiers.
+The Doctrine can generate a unique identifier by itself, and the only thing needed is a mapped field.
+So the item now contains a new field just for the Doctrine.</p>
+<pre><code class="language-php">&lt;?php
+
+// Item.php
+
+namespace Simara\Cart\Domain;
+
+class Item
+{
+    private $generatedId;
+
+    // the rest of the class is unchanged
+}</code></pre>
+<h3>Collection</h3>
+<p>Doctrine doesn't hydrate an object collection as an array, it hydrates
+the <a href="https://github.com/doctrine/orm/blob/becf73050ea19c7e8f72329450b862c9cc668c23/lib/Doctrine/ORM/PersistentCollection.php">PersistentCollection</a>.</p>
+<p>So the type hint in the cart is not right.
+This is important for working with the collection - an array is passed as a copy but an object is passed as a reference.
+And what is worse, the persistent collection has so many responsibilities so it would become difficult to understand.</p>
+<p>Persistent collection implements the <a href="https://github.com/doctrine/collections/blob/635f782a0a5384202cb21c1d2d8b959763493b46/lib/Doctrine/Common/Collections/Collection.php">Collection</a>
+interface and we can use this fact in the code.
+If we declare that the collection is not the <code>PersistentCollection</code> but an abstract <code>Collection</code>, we can initialize it in the constructor with
+an <a href="https://github.com/doctrine/collections/blob/635f782a0a5384202cb21c1d2d8b959763493b46/lib/Doctrine/Common/Collections/ArrayCollection.php">ArrayCollection</a>.
+So the type hint is true if the object is new - <code>ArrayCollection</code>, and it is also true if the object is hydrated by the Doctrine -<code>PersistentCollection</code>.</p>
+<pre><code class="language-php">&lt;?php
+// Cart.php
+
+namespace Simara\Cart\Domain;
+
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+
+class Cart
+{
+    /**
+     * @var string
+     */
+    private $id;
+
+    /**
+     * @var Collection|Item[]
+     */
+    private $items;
+
+    public function __construct(string $id)
+    {
+        $this-&gt;id = $id;
+        $this-&gt;items = new ArrayCollection();
+    }
+
+    // the rest of the class is unchanged
+}</code></pre>
+<h2>Doctrine Repository</h2>
+<p>The Doctrine repository is an infrastructure for the domain, so it is implemented in the infrastructure layer.</p>
+<pre><code class="language-php">&lt;?php
+
+// DoctrineCartRepository.php
+
+namespace Simara\Cart\Infrastructure;
+
+use Doctrine\ORM\EntityManager;
+use Simara\Cart\Domain\Cart;
+use Simara\Cart\Domain\CartNotFoundException;
+use Simara\Cart\Domain\CartRepository;
+
+class DoctrineCartRepository implements CartRepository
+{
+    /**
+     * @var EntityManager
+     */
+    private $entityManger;
+
+    public function __construct(EntityManager $entityManger)
+    {
+        $this-&gt;entityManger = $entityManger;
+    }
+
+    public function add(Cart $cart): void
+    {
+        $this-&gt;entityManger-&gt;persist($cart);
+    }
+
+    public function get(string $id): Cart
+    {
+        return $this-&gt;getThrowingException($id);
+    }
+
+    public function remove(string $id): void
+    {
+        $cart = $this-&gt;getThrowingException($id);
+        $this-&gt;entityManger-&gt;remove($cart);
+    }
+
+    private function find(string $id): ?object
+    {
+        return $this-&gt;entityManger-&gt;find(Cart::class, $id);
+    }
+
+    private function getThrowingException(string $id): Cart
+    {
+        $cart = $this-&gt;find($id);
+        if ($cart instanceof Cart) {
+            return $cart;
+        }
+
+        throw new CartNotFoundException();
+    }
+}</code></pre>
+<h3>Mapping</h3>
+<p>The Doctrine mapping belongs also to the infrastructure as do the repository.
+Using PHP annotations is not preferred.
+Mapping should not be part of the domain because we want to have the domain infrastructure-free if possible.
+It also mixes the PHP domain language with the mapping annotation language.
+Static PHP mapping is much better, but it is a bit verbose and difficult to read.
+YAML seems to be a good choice, but it is deprecated in future Doctrine versions.
+Finally, the XML format seems to be fine and  it is also supported.
+So our final choice is XML.</p>
+<pre><code class="language-xml">&lt;!--&gt;Cart.xml&lt;--&gt;
+&lt;doctrine-mapping&gt;
+    &lt;entity name="Simara\Cart\Domain\Cart"&gt;
+        &lt;id name="id" type="string" /&gt;
+
+        &lt;many-to-many field="items" target-entity="Item"&gt;
+            &lt;cascade&gt;
+                &lt;cascade-all /&gt;
+            &lt;/cascade&gt;
+            &lt;join-table name="cart_item"&gt;
+                &lt;join-columns&gt;
+                    &lt;join-column name="cart_id" referenced-column-name="id"/&gt;
+                &lt;/join-columns&gt;
+                &lt;inverse-join-columns&gt;
+                    &lt;join-column name="item_id" referenced-column-name="generatedId" on-delete="CASCADE" /&gt;
+                &lt;/inverse-join-columns&gt;
+            &lt;/join-table&gt;
+        &lt;/many-to-many&gt;
+    &lt;/entity&gt;
+&lt;/doctrine-mapping&gt;</code></pre>
+<pre><code class="language-xml">&lt;!--&gt;Item.xml&lt;--&gt;
+&lt;doctrine-mapping&gt;
+    &lt;entity name="Simara\Cart\Domain\Item"&gt;
+        &lt;id name="generatedId" type="integer"&gt;
+            &lt;generator strategy="AUTO" /&gt;
+        &lt;/id&gt;
+
+        &lt;field name="productId" type="string" /&gt;
+        &lt;field name="amount" type="integer" /&gt;
+
+        &lt;embedded name="unitPrice" class="Price" /&gt;
+    &lt;/entity&gt;
+&lt;/doctrine-mapping&gt;</code></pre>
+<pre><code class="language-xml">&lt;!--&gt;Price.xml&lt;--&gt;
+&lt;doctrine-mapping&gt;
+    &lt;embeddable name="Simara\Cart\Domain\Price"&gt;
+        &lt;field name="withVat" type="float" /&gt;
+    &lt;/embeddable&gt;
+&lt;/doctrine-mapping&gt;</code></pre>
+<h2>System Tests</h2>
+<p>Because we already have a repository test from <a href="/blog/2018/02/28/domain-driven-design-repository/">previous article</a>,
+it should be possible to write a Doctrine test only by extending the abstract test.
+We test against a real database so we can catch problems that we face in the production environment.
+The code below allows us to test against MySQL and PostgreSQL.</p>
+<pre><code class="language-php">&lt;?php
+
+// DoctrineCartRepositoryTest.php
+
+namespace Simara\Cart\Infrastructure;
+
+use Doctrine\ORM\EntityManager;
+use PHPUnit\Framework\Assert;
+use Simara\Cart\Domain\Cart;
+use Simara\Cart\Domain\CartRepository;
+use Simara\Cart\Domain\Item;
+use Simara\Cart\Domain\Price;
+use Simara\Cart\Utils\EntityManagerFactory;
+use Simara\Cart\Utils\ConnectionManager;
+
+class DoctrineCartRepositoryTest extends CartRepositoryTest
+{
+    /**
+     * @var EntityManager
+     */
+    private $entityManager;
+
+    protected function createRepository(): CartRepository
+    {
+        return new DoctrineCartRepository($this-&gt;entityManager);
+    }
+
+    protected function flush(): void
+    {
+        $this-&gt;entityManager-&gt;flush();
+        $this-&gt;entityManager-&gt;clear();
+    }
+
+    protected function setUp()
+    {
+        StaticConnectionManager::dropAndCreateDatabase();
+        $connection = StaticConnectionManager::createConnection();
+        $this-&gt;entityManager = EntityManagerFactory::createEntityManager($connection, [Cart::class, Item::class]);
+        parent::setUp();
+    }
+
+    protected function tearDown()
+    {
+        parent::tearDown();
+        $this-&gt;entityManager-&gt;getConnection()-&gt;close();
+    }
+
+    public function testItemsAreRemovedWithCart() {
+        $cart = new Cart('1');
+        $cart-&gt;add('1', new Price(10), 1);
+        $repository = $this-&gt;createRepository();
+        $repository-&gt;add($cart);
+        $this-&gt;flush();
+
+        $repository-&gt;remove('1');
+        $this-&gt;flush();
+
+        $queryBuilder = $this-&gt;entityManager-&gt;createQueryBuilder();
+        $queryBuilder-&gt;from(Item::class, 'i')
+            -&gt;select('i');
+        $query = $queryBuilder-&gt;getQuery();
+        $result = $query-&gt;getResult();
+        Assert::assertCount(0, $result);
+    }
+}</code></pre>
+<h3>Database Connection and Entity Manager</h3>
+<p>In the beginning, we need a connection and an empty database.
+This is done by the <code>StaticConnectionManager</code>.</p>
+<pre><code class="language-php">&lt;?php
+
+// ConnectionManager.php
+
+namespace Simara\Cart\Utils;
+
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver;
+use Doctrine\DBAL\Driver\PDOPgSql\Driver as PgSqlDriver;
+use Exception;
+
+class ConnectionManager
+{
+    /**
+     * @var Connection
+     */
+    private static $connectionForCreatingDatabases;
+
+    public static function dropAndCreateDatabase(): void
+    {
+        if (self::$connectionForCreatingDatabases === null) {
+            self::$connectionForCreatingDatabases = new Connection([
+                'user' =&gt; self::getUser(),
+                'password' =&gt; self::getPassword(),
+                'host' =&gt; self::getHost(),
+            ], self::getDriver());
+        }
+        self::$connectionForCreatingDatabases-&gt;exec(sprintf('DROP DATABASE IF EXISTS %s', self::getDbName()));
+        self::$connectionForCreatingDatabases-&gt;exec(sprintf('CREATE DATABASE %s', self::getDbName()));
+    }
+
+    private static function getUser(): ?string
+    {
+        return $GLOBALS['DB_USER'] ?? null;
+    }
+
+    private static function getPassword(): ?string
+    {
+        return $GLOBALS['DB_PASSWORD'] ?? null;
+    }
+
+    private static function getHost(): ?string
+    {
+        return $GLOBALS['DB_HOST'] ?? null;
+    }
+
+    private static function getDriver(): Driver
+    {
+        if (!isset($GLOBALS['DB_DRIVER'])) {
+            throw new Exception('Please set DB_DRIVER in global config');
+        }
+        if ($GLOBALS['DB_DRIVER'] === 'pdo_pgsql') {
+            return new PgSqlDriver();
+        }
+
+        throw new Exception(sprintf('DB_DRIVER "%s" not supported', $GLOBALS['DB_DRIVER']));
+    }
+
+    private static function getDbName(): string
+    {
+        if(!isset($GLOBALS['DB_DBNAME'])) {
+            throw new Exception('Please set DB_DBNAME in global config');
+        }
+
+        return $GLOBALS['DB_DBNAME'];
+    }
+
+    public static function createConnection(): Connection
+    {
+        return new Connection([
+            'user' =&gt; self::getUser(),
+            'password' =&gt; self::getPassword(),
+            'dbname' =&gt; self::getDbName(),
+            'host' =&gt; self::getHost(),
+        ], self::getDriver());
+    }
+
+    public static function createSqliteMemoryConnection(): Connection
+    {
+        return new Connection([
+            'memory' =&gt; true,
+        ], new SqliteDriver());
+    }
+}</code></pre>
+<p>It uses a dirty trick to get database credentials – it reads global variables.
+These variables are defined in the <code>phpunit.xml</code>.</p>
+<pre><code class="language-xml">&lt;phpunit bootstrap="vendor/autoload.php"&gt;
+    &lt;php&gt;
+        &lt;var name="DB_DRIVER" value="pdo_pgsql" /&gt;
+        &lt;var name="DB_USER" value="user" /&gt;
+        &lt;var name="DB_PASSWORD" value="***" /&gt;
+        &lt;var name="DB_DBNAME" value="cart_test" /&gt;
+        &lt;var name="DB_HOST" value="localhost" /&gt;
+    &lt;/php&gt;
+    ...
+&lt;/phpunit&gt;</code></pre>
+<p>This is probably the worst part of the whole project, but it allows us to test against a real database.</p>
+<p>We use the <code>EntityManagerFactory</code> to create the <code>EntityManager</code>.
+The factory defines the mapping location, forbids proxy generation and returns the <code>EntityManager</code>.
+It also uses the <code>SchemaTool</code> to create a database schema.</p>
+<pre><code class="language-php">&lt;?php
+
+// EntityManagerFactory.php
+
+namespace Simara\Cart\Utils;
+
+use Doctrine\DBAL\Connection;
+use Doctrine\ORM\Configuration;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping\Driver\SimplifiedXmlDriver;
+use Doctrine\ORM\Proxy\ProxyFactory;
+use Doctrine\ORM\Tools\SchemaTool;
+
+final class EntityManagerFactory
+{
+    public static function createEntityManager(Connection $connection, array $schemaClassNames): EntityManager
+    {
+        $config = new Configuration();
+
+        $namespaces = [
+            __DIR__ . '/../../src/Infrastructure/DoctrineMapping' =&gt; 'Simara\\Cart\\Domain'
+        ];
+        $xmlDriver = new SimplifiedXmlDriver($namespaces, '.xml');
+
+        $config-&gt;setMetadataDriverImpl($xmlDriver);
+        $config-&gt;setProxyDir(__DIR__);
+        $config-&gt;setProxyNamespace('Doctrine\Tests\Proxies');
+        $config-&gt;setAutoGenerateProxyClasses(ProxyFactory::AUTOGENERATE_NEVER);
+
+        $entityManager = EntityManager::create($connection, $config);
+
+        (new SchemaTool($entityManager))
+            -&gt;createSchema(array_map([$entityManager, 'getClassMetadata'], $schemaClassNames));
+
+        return $entityManager;
+    }
+}</code></pre>
+<p>In this test, we also implement the <code>flush</code> method.
+It flushes the <code>EntityManager</code> and also cleans it forcing database reading.
+This method also simulates the persistence wrapper and a new life of the system.</p>
+<p>After the test finishes, we have to also close the database connection, it is done in <code>tearDown</code> method.</p>
+<h3>Doctrine-Specific Tests</h3>
+<p>We can write a Doctrine-specific test if it makes sense.
+It may happen that we have a trouble with mapping and we want to make sure everything is ok.
+We check that there isn't any mess in the database after the cart is removed in the last test.</p>
+<h3>SQLite Memory Tests</h3>
+<p>We prepared also SQLite tests because they are fast and help us to find early mapping problems.
+Creating the SQLite memory connection is easy because it doesn't require any credentials.</p>
+<pre><code class="language-php">&lt;?php
+
+// DoctrineCartRepositoryTest.php
+
+class DoctrineCartRepositoryTest extends CartRepositoryTest
+{
+    // ...
+
+    protected function setUp()
+    {
+        $connection = ConnectionManager::createSqliteMemoryConnection();
+        $this-&gt;entityManager = EntityManagerFactory::createEntityManager($connection, [Cart::class, Item::class]);
+        parent::setUp();
+    }
+
+    // ...</code></pre>
+<p>SQLite testing is also used in the pehapkari.cz tests because it runs fast and doesn't require a real database.</p>
+<h2>Integration</h2>
+<p>We have some integration in tests but it is not a part of the main code.
+The reason is that we have no idea how the real project is integrated.
+The real project can run on a framework or on a custom integration.
+Tests are testing only what they are supposed to test.
+The cart aggregate is unit-tested, the Doctrine repository is system tested.
+In a real project, we may have also end-to-end tests which prepare the environment, integrate the project and run tests from the entry point to the infrastructure and back.
+But these tests don't belong here.</p>
+<h2>TL;DR</h2>
+<p>The infrastructure can influence the implemented model.
+The Doctrine repository is the cart repository implementation with mapping in separated files.
+Everything is in the infrastructure layer.
+We can test the Doctrine repository against a real database.</p>
+<h2>References</h2>
+<p>DOCTRINE TEAM.
+<em>Doctrine 2 ORM 2 documentation</em> [online].
+2018 [2018-03-03].
+Available: <a href="http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/">http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/</a></p>
+<h2>Complete code</h2>
+<ul>
+<li><a href="https://github.com/simara-svatopluk/cart/tree/doctrine-repository">https://github.com/simara-svatopluk/cart/tree/doctrine-repository</a> <strong>doctrine-repository</strong> tag only</li>
+</ul>
+<h2>Contact</h2>
+<p>Are you designing architecture and like DDD approach? Hire me, I can help you - <a href="http://svatasimara.cz/">svatasimara.cz</a></p>
+
+        <br>
+
+        <div class="container">
+            <div id="disqus_thread"></div>
+
+<script type="text/javascript">
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//pehapkari.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+        </div>
+
+        <br>
+    </div>
+
+            </div>
+        
+        <div id="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-6 mt-3 mt-md-0">
+                <p class="mb-2">Web Péhápkaři.cz pohání <a href="https://symfony.com/">Symfony</a> a najdeš ho na <a href="https://github.com/pehapkari/pehapkari.cz">Githubu</a>.</p>
+
+                                            </div>
+
+            <div class="col-12 col-md-6 mt-4 mt-md-0">
+                <ul id="socials" class="pull-right">
+                    <li>
+                        <a href="https://facebook.com/pehapkari">
+                            <em class="fab fa-2x fa-facebook"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://twitter.com/pehapkari">
+                            <em class="fab fa-2x fa-twitter"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/friends-of-php-prague/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Praha</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/Pehapkari-Brno/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Brno</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://github.com/pehapkari">
+                            <em class="fab fa-2x fa-github"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ">
+                            <em class="fab fa-2x fa-slack"></em>
+                        </a>
+                        <p>
+                            <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ/">
+                                <span class="hidden-sm-down">Pozvi se</span>
+                                <span class="hidden-md-up">Pozvi</span>
+                            </a>
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="footer_body">
+            <div class="row">
+                <div class="col-6 col-md-4 mb-4 mb-md-0">
+                    <h3>O nás</h3>
+
+                    <ul class="bottom_menu">
+                        <li>
+                            <a href="/kontakt">Kontakt</a>
+                        </li>
+
+                        <li>
+                            <a href="/for-speakers">Pro speakry</a>
+                        </li>
+
+                        <li>
+                            <a href="https://github.com/pehapkari/pehapkari.cz/tree/master/public/assets/pehapkari_logo">Logo</a>
+                        </li>
+
+                        <li>
+                            <a href="/rss.xml">RSS blogu</a>
+                        </li>
+
+                        <li>
+                            <a href="http://bit.ly/pehapkari-newsletter">Sleduj Newsletter</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/build/js/app.js"></script>
+
+<script
+    src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
+<script>
+    $('document').ready(function() {
+        var typed = new Typed('#typed',{
+            stringsElement: '#typed-strings',
+            typeSpeed: 50,
+            backDelay: 1400,
+        });
+    });
+</script>
+
+<script src="/assets/prism/prism.js"></script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-89860072-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-89860072-1');
+</script>
+    </body>
+</html>

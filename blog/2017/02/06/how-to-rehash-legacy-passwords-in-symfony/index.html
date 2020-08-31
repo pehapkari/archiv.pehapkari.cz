@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="cs">
+    <head>
+        <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="description" content="Otevřené místo pro všechny PHP programátory">
+<meta name="keywords" content="PHP, komunita, programování, srazy, školení, blog, články">
+<meta name="author" content="https://pehapkari.cz">
+<meta name="robots" content="index, follow">
+
+<meta property="og:image" content="/assets/images/meetup.jpg">
+<meta property="fb:pages" content="918297778220033" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<link rel="alternate" type="application/rss+xml" title="Péhápkaři.cz Blog RSS" href="/rss.xml">
+
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap&subset=latin-ext" rel="stylesheet">
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<link href="/favicon.ico" rel="shortcut icon">
+
+<title>
+     How to rehash legacy passwords in Symfony | Děláš v PHP? Jsi jedním z nás
+</title>
+
+<link rel="stylesheet" href="/build/css/app.css">
+
+<link rel="stylesheet" href="/assets/prism/prism.css">
+<link rel="stylesheet" href="/assets/prism/prism-custom.css">
+
+<link rel="stylesheet" href="https://use.typekit.net/jmg2upk.css">
+
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i|Ubuntu+Mono&amp;subset=latin-ext" rel="stylesheet">
+
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    </head>
+
+    <body id="">
+        <nav id="ph-nav" class="navbar fixed-top navbar-expand navbar-light bg-light ph-nav border-bottom hidden-sm-down">
+    <div class="container">
+        <a class="ph-nav__logo" href="/">
+            <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+            <br>
+            <p>Péhápkaři</p>
+        </a>
+
+        <div id="top-menu-search" class="hidden-md-down">
+            <form method="get" action="https://www.google.com/search" itemprop="potentialAction" itemscope="" itemtype="http://schema.org/SearchAction">
+    <meta itemprop="target" content="https://www.google.com/search?q={q}"/>
+    <input name="sitesearch" value="pehapkari.cz" type="hidden"/>
+    <input itemprop="query-input" type="text" id="search-query" class="form-control" required="required" name="q" placeholder="Napiš co hledáš..." autocomplete="off"/>
+</form>
+        </div>
+
+        <ul class="navbar-nav ml-auto hidden-sm-down" id="menu">
+            <li>
+                <a class="active" href="/blog">
+                    Blog
+                </a>
+            </li>
+            <li>
+                <a class="" href="/prehaj-si-prednasku">
+                    Videa
+                </a>
+            </li>
+            <li class="pr-0">
+                <a class="" href="/kontakt">
+                    Kontakt
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div id="mobile-menu" class="row ml-0 mr-0 text-center hidden-md-up border-bottom">
+    <a href="/" class="ph-nav__logo col-3 ">
+        <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+    </a>
+
+    <a href="/prehaj-si-prednasku" class="col-3 ">
+        Videa
+    </a>
+    <a href="/blog" class="col-3 ">
+        Blog
+    </a>
+</div>
+
+                    <div id="main">
+                
+
+                    <div class="container" id="article">
+        <h1>How to rehash legacy passwords in Symfony</h1>
+
+        <strong>Ivan Kvasnica</strong>
+        &nbsp;
+        <time datetime="2017-02-Mon">
+            6. 2. 2017
+        </time>
+
+        <br>
+
+        <div class="card mt-4 mb-4">
+            <div class="card-body text-bigger">
+                <p>You need to import users from an old project, but but don't want to bother them with resetting their passwords just because you want to use bcrypt. Fortunately, there is a solution.</p>
+            </div>
+        </div>
+
+        <p><em>NB: Michal Špaček has suggested slightly better and more secure way of <a href="https://pehapkari.cz/blog/2017/02/06/how-to-rehash-legacy-passwords-in-symfony/#comment-3153608090">rehashing passwords</a> in the comments, <a href="https://pehapkari.cz/blog/2017/02/06/how-to-rehash-legacy-passwords-in-symfony/#comment-3153608090">check it out</a>.</em></p>
+<p>So you've decided to send a legacy project to his well-deserved retirement and write a nice, clean code instead. But there is an asset you cannot throw away. <strong>Users</strong>.</p>
+<p>If you care about web security at least a bit and you haven't lived in a cave for the last couple of years, you might have heard of a fact that <strong>storing users passwords in plaintext is a bad thing</strong>. So even your legacy project did hopefully use a hashing algorithm. But since you care about the security, you would like <a href="https://security.stackexchange.com/questions/4781/do-any-security-experts-recommend-bcrypt-for-password-storage">to use bcrypt</a> for all users. Right now.</p>
+<p>Well, <strong>you might reset all passwords</strong> and send users an e-mail requesting for resetting their passwords. Or do so automatically when they log in.</p>
+<p>Wrong.</p>
+<p>Users don't care and you should not bother them with requests to change their password unless really necessary (read: you've been hacked). Moreover, you don't need them to change the password. <strong>You just need to rehash it.</strong></p>
+<h2>Check the password twice</h2>
+<p>Unless you hashed your legacy passwords by a really bad algorithm (say <a href="https://en.wikipedia.org/wiki/MD5#Security">md5</a>), you can just keep them in use until users log in into a new application and <strong>rehash them to bcrypt on-the-fly</strong>.</p>
+<ol>
+<li>First, check all passwords by bcrypt.</li>
+<li>If the check fails, try a legacy algorithm.</li>
+<li>If that works, logs the user in and rehash his password to bcrypt, so next time he will log in after the first check.</li>
+<li>Otherwise, login just fails normally.</li>
+</ol>
+<p>First things first - you definitely need to <strong>rewrite (or copy-paste) your legacy algorithm</strong> as a service:</p>
+<pre><code class="language-yaml"># app/config/services.yml
+
+app.legacy_encoder:
+    class: AppBundle\Security\Encoder\LegacyEncoder
+    autowire: true</code></pre>
+<p>You might want to handle this service as a lazy one, so the encoder is initialized only when really used. <a href="https://symfony.com/doc/current/service_container/lazy_services.html">Read more on lazy services</a> and how to define them in the official documentation.</p>
+<p>BCrypt algorithm is implemented as a standard encoder in Symfony. Let's <strong>extend it</strong> in our own service:</p>
+<pre><code class="language-yaml"># app/config/services.yml
+
+app.password_encoder:
+    class: AppBundle\Security\PasswordEncoder
+    autowire: true</code></pre>
+<p>Now create a skeleton of the custom encoder. Of course, we need to inject services as well as bcrypt and legacy encoders in ours so we can use their methods we need.</p>
+<pre><code class="language-php">// src/AppBundle/Security/PasswordEncoder.php
+
+namespace AppBundle\Security;
+
+use Symfony\Component\EventDispatcher\GenericEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Security\Core\Encoder\BCryptPasswordEncoder;
+use Symfony\Component\Security\Core\Encoder\PasswordEncoderInterface;
+
+final class PasswordEncoder implements PasswordEncoderInterface
+{
+
+    /**
+     * @var BCryptPasswordEncoder
+     */
+    private $bcrypt;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $dispatcher;
+
+    /**
+     * @var LegacyEncoder
+     */
+    private $legacyEncoder;
+
+    public function __construct(BCryptPasswordEncoder $bcrypt, EventDispatcherInterface $dispatcher, LegacyEncoder $legacyEncoder)
+    {
+        $this-&gt;bcrypt = $bcrypt;
+        $this-&gt;dispatcher = $dispatcher;
+        $this-&gt;legacyEncoder = $legacyEncoder;
+    }
+
+    public function encodePassword($raw, $salt) {
+        return $this-&gt;bcrypt-&gt;encodePassword($raw, $salt);
+    }
+
+    // ...
+
+}</code></pre>
+<p><strong>And now the fun part.</strong> Let's rewrite the <em>isPasswordValid</em> method so it does what we want.</p>
+<pre><code class="language-php">// src/AppBundle/Security/PasswordEncoder.php
+
+// ...
+
+public function isPasswordValid(string $encoded, string $raw, string $salt) : bool
+{
+    // check using the bcrypt algorithm first
+    if ($this-&gt;bcrypt-&gt;isPasswordValid($encoded, $raw, $salt)) {
+        return true;
+    }
+
+    // prevent legacy fallback when it's obvious that the password
+    // has been hashed using bcrypt (hash starts with '$2y$')
+    if (substr($encoded, 0, 4) === '$2y$') {
+        return false;
+    }
+
+    // legacy algorithm check
+    return $this-&gt;legacyEncoder-&gt;isPasswordValid($encoded, $raw, $salt);
+}</code></pre>
+<p><strong>Simple as that.</strong> Oh wait. But we still need to take care of rehashing!</p>
+<h2>Rehashing passwords dynamically</h2>
+<p>If we are sure that a password has been hashed using the legacy algorithm, just <strong>notify another custom service that will rehash it.</strong> First, add these lines into the <em>isPasswordValid</em> method:</p>
+<pre><code class="language-php">// src/AppBundle/Security/PasswordEncoder.php
+
+public function isPasswordValid(string $encoded, string $raw, string $salt) : bool
+{
+    // ...
+
+    // If password is encoded using the legacy algorithm, rehash it to bcrypt
+    if ($result) {
+        $this-&gt;dispatcher-&gt;dispatch('app.legacy_user', new GenericEvent($raw));
+    }
+
+    return $result;
+}</code></pre>
+<p><strong>Now you can subscribe</strong> to the <em>app.legacy_user</em> event and save the password temporarily into a service property. When the login is finished successfully, <strong>take that password and save it into the <em>User</em> entity.</strong></p>
+<p>Here's an example how to achieve that:</p>
+<pre><code class="language-php">// src/AppBundle/Security/PasswordUpdateManager.php
+
+namespace AppBundle\Security;
+
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\EventDispatcher\GenericEvent;
+use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
+use Symfony\Component\Security\Http\Event\InteractiveLoginEvent;
+use Symfony\Component\Security\Http\SecurityEvents;
+
+final class PasswordUpdateManager implements EventSubscriberInterface
+{
+    /**
+     * @var EntityManagerInterface
+     */
+    private $entityManager;
+
+    /**
+     * @var EncoderFactoryInterface
+     */
+    private $encoderFactory;
+
+    /**
+     * @var string
+     */
+    private $passwordForRehash;
+
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        EncoderFactoryInterface $encoderFactory
+    ) {
+        $this-&gt;entityManager = $entityManager;
+        $this-&gt;encoderFactory = $encoderFactory;
+    }
+
+    public static function getSubscribedEvents() : array
+    {
+        return [
+            'app.legacy_user' =&gt; 'storePasswordForRehash',
+            SecurityEvents::INTERACTIVE_LOGIN =&gt; 'rehashPassword',
+        ];
+    }
+
+    public function storePasswordForRehash(GenericEvent $event)
+    {
+        // just store the password for later use
+        $this-&gt;passwordForRehash = $event-&gt;getSubject();
+    }
+
+    public function rehashPassword(InteractiveLoginEvent $event)
+    {
+        // this method will be triggered after each login, continue only if there is a legacy password
+        if (!$this-&gt;passwordForRehash) {
+            return;
+        }
+
+        // get the logged in user
+        $user = $event-&gt;getAuthenticationToken()-&gt;getUser();
+
+        // load a correct password encoder
+        $encoder = $this-&gt;encoderFactory-&gt;getEncoder($user);
+
+        // rehashing happens here
+        $newPassword = $encoder-&gt;encodePassword($this-&gt;passwordForRehash, $user-&gt;getSalt());
+
+        // now save the new password into the database
+        $user-&gt;setPassword($newPassword);
+        $this-&gt;entityManager-&gt;persist($user);
+        $this-&gt;entityManager-&gt;flush();
+    }
+}</code></pre>
+<p>And as always, don't forget to add the service definition into the <em>services.yml</em> file with its dependencies and <em>kernel.event_subscriber</em> tag.</p>
+<pre><code class="language-yaml"># app/config/services.yml
+
+app.password_update_manager:
+    class: AppBundle\Security\PasswordUpdateManager
+    tags:
+      - { name: kernel.event_subscriber }
+    autowire: true</code></pre>
+<h2>Let's improve it</h2>
+<p>Depending on your system, this might be just a beginning.</p>
+<p>Maybe you use <strong>different kind of logins</strong>, not just the interactive login. Then you need to extend the solution so the password rehashing will not be skipped. Also, you can make rehashing <strong>completely automatic</strong> using <a href="http://docs.doctrine-project.org/projects/doctrine-orm/en/latest/reference/events.html">Doctrine listeners</a>, so the rehashing is done each time a user changes his password.</p>
+<p>Do you have any suggestion for an improvement? Feel free to drop a comment below!
+And check out <a href="https://ikvasnica.com/blog/">my blog focused on Symfony and PHP development</a>.</p>
+
+        <br>
+
+        <div class="container">
+            <div id="disqus_thread"></div>
+
+<script type="text/javascript">
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//pehapkari.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+        </div>
+
+        <br>
+    </div>
+
+            </div>
+        
+        <div id="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-6 mt-3 mt-md-0">
+                <p class="mb-2">Web Péhápkaři.cz pohání <a href="https://symfony.com/">Symfony</a> a najdeš ho na <a href="https://github.com/pehapkari/pehapkari.cz">Githubu</a>.</p>
+
+                                            </div>
+
+            <div class="col-12 col-md-6 mt-4 mt-md-0">
+                <ul id="socials" class="pull-right">
+                    <li>
+                        <a href="https://facebook.com/pehapkari">
+                            <em class="fab fa-2x fa-facebook"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://twitter.com/pehapkari">
+                            <em class="fab fa-2x fa-twitter"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/friends-of-php-prague/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Praha</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/Pehapkari-Brno/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Brno</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://github.com/pehapkari">
+                            <em class="fab fa-2x fa-github"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ">
+                            <em class="fab fa-2x fa-slack"></em>
+                        </a>
+                        <p>
+                            <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ/">
+                                <span class="hidden-sm-down">Pozvi se</span>
+                                <span class="hidden-md-up">Pozvi</span>
+                            </a>
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="footer_body">
+            <div class="row">
+                <div class="col-6 col-md-4 mb-4 mb-md-0">
+                    <h3>O nás</h3>
+
+                    <ul class="bottom_menu">
+                        <li>
+                            <a href="/kontakt">Kontakt</a>
+                        </li>
+
+                        <li>
+                            <a href="/for-speakers">Pro speakry</a>
+                        </li>
+
+                        <li>
+                            <a href="https://github.com/pehapkari/pehapkari.cz/tree/master/public/assets/pehapkari_logo">Logo</a>
+                        </li>
+
+                        <li>
+                            <a href="/rss.xml">RSS blogu</a>
+                        </li>
+
+                        <li>
+                            <a href="http://bit.ly/pehapkari-newsletter">Sleduj Newsletter</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/build/js/app.js"></script>
+
+<script
+    src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
+<script>
+    $('document').ready(function() {
+        var typed = new Typed('#typed',{
+            stringsElement: '#typed-strings',
+            typeSpeed: 50,
+            backDelay: 1400,
+        });
+    });
+</script>
+
+<script src="/assets/prism/prism.js"></script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-89860072-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-89860072-1');
+</script>
+    </body>
+</html>

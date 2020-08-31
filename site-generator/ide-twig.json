@@ -1,7 +1,0 @@
-{
-    "namespaces": [
-        { "path": "templates" },
-        { "path": "packages/blog/templates" },
-        { "path": "packages/youtube/templates" }
-    ]
-}

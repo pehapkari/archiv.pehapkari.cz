@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="cs">
+    <head>
+        <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="description" content="Otevřené místo pro všechny PHP programátory">
+<meta name="keywords" content="PHP, komunita, programování, srazy, školení, blog, články">
+<meta name="author" content="https://pehapkari.cz">
+<meta name="robots" content="index, follow">
+
+<meta property="og:image" content="/assets/images/meetup.jpg">
+<meta property="fb:pages" content="918297778220033" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<link rel="alternate" type="application/rss+xml" title="Péhápkaři.cz Blog RSS" href="/rss.xml">
+
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap&subset=latin-ext" rel="stylesheet">
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<link href="/favicon.ico" rel="shortcut icon">
+
+<title>
+     Jak zaregistrovat Nette komponentu jako posluchače událostí | Děláš v PHP? Jsi jedním z nás
+</title>
+
+<link rel="stylesheet" href="/build/css/app.css">
+
+<link rel="stylesheet" href="/assets/prism/prism.css">
+<link rel="stylesheet" href="/assets/prism/prism-custom.css">
+
+<link rel="stylesheet" href="https://use.typekit.net/jmg2upk.css">
+
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i|Ubuntu+Mono&amp;subset=latin-ext" rel="stylesheet">
+
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    </head>
+
+    <body id="">
+        <nav id="ph-nav" class="navbar fixed-top navbar-expand navbar-light bg-light ph-nav border-bottom hidden-sm-down">
+    <div class="container">
+        <a class="ph-nav__logo" href="/">
+            <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+            <br>
+            <p>Péhápkaři</p>
+        </a>
+
+        <div id="top-menu-search" class="hidden-md-down">
+            <form method="get" action="https://www.google.com/search" itemprop="potentialAction" itemscope="" itemtype="http://schema.org/SearchAction">
+    <meta itemprop="target" content="https://www.google.com/search?q={q}"/>
+    <input name="sitesearch" value="pehapkari.cz" type="hidden"/>
+    <input itemprop="query-input" type="text" id="search-query" class="form-control" required="required" name="q" placeholder="Napiš co hledáš..." autocomplete="off"/>
+</form>
+        </div>
+
+        <ul class="navbar-nav ml-auto hidden-sm-down" id="menu">
+            <li>
+                <a class="active" href="/blog">
+                    Blog
+                </a>
+            </li>
+            <li>
+                <a class="" href="/prehaj-si-prednasku">
+                    Videa
+                </a>
+            </li>
+            <li class="pr-0">
+                <a class="" href="/kontakt">
+                    Kontakt
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div id="mobile-menu" class="row ml-0 mr-0 text-center hidden-md-up border-bottom">
+    <a href="/" class="ph-nav__logo col-3 ">
+        <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+    </a>
+
+    <a href="/prehaj-si-prednasku" class="col-3 ">
+        Videa
+    </a>
+    <a href="/blog" class="col-3 ">
+        Blog
+    </a>
+</div>
+
+                    <div id="main">
+                
+
+                    <div class="container" id="article">
+        <h1>Jak zaregistrovat Nette komponentu jako posluchače událostí</h1>
+
+        <strong>Tomáš Pilař</strong>
+        &nbsp;
+        <time datetime="2017-01-Thu">
+            26. 1. 2017
+        </time>
+
+        <br>
+
+        <div class="card mt-4 mb-4">
+            <div class="card-body text-bigger">
+                <p>Dnes si povíme o tom, jak přimět Nette <strong>komponenty poslouchat na události</strong>, které nám vyvolává aplikace a umožnit jim se podle toho zachovat.</p>
+            </div>
+        </div>
+
+        <h2>Úvod do problému</h2>
+<p>U složitějších aplikací může dojit k tomu, že v jednom presenteru máte vloženo více komponent, které mají mezi sebou pomyslnou vazbu. Pokud se stane něco v jedné komponentě, tak je potřeba překreslit (ajaxově snippetem) komponentu druhou apod. Typicky u eshopů se jedná o ten use-case, že při přidání položky do košíku potřebuji překreslit ten malý košík s cenou umístěný většinou v pravo nahoře a má mi vyskočit nějaký popup s podobnými produkty.</p>
+<p><strong>Jak elegantně překreslovat komponenty</strong> v závislosti na ajaxových požadavcích? Řešením je použití událostí a jejich posluchačů.</p>
+<h2>Náš CategoryPresenter</h2>
+<p>Mějmě například takovýto presenter:</p>
+<pre><code class="language-php">// Presenter/CategoryPresenter.php
+
+use Nette\Application\UI\Multiplier;
+use Nette\Application\UI\Presenter;
+use Component\AddToBasketControl\AddToBasketControl;
+use Component\AddToBasketControl\AddToBasketControlFactoryInterface;
+use Component\BasketContentControl\BasketContentControl;
+use Component\BasketContentControl\BasketContentControlFactoryInterface;
+
+final class CategoryPresenter extends Presenter
+{
+
+    const PRODUCTS = [
+        [
+            'id' =&gt; 1,
+            'name' =&gt; 'T-Shirt',
+            'price' =&gt; 100
+        ],
+        [
+            'id' =&gt; 2,
+            'name' =&gt; 'Red socks',
+            'price' =&gt; 29
+        ],
+        [
+            'id' =&gt; 3,
+            'name' =&gt; 'Green hat',
+            'price' =&gt; 99
+        ]
+    ];
+
+    /**
+     * @var AddToBasketControlFactoryInterface
+     */
+    private $addToBasketControlFactory;
+
+    /**
+     * @var BasketContentControlFactoryInterface
+     */
+    private $basketContentControlFactory;
+
+    public function __construct(
+        AddToBasketControlFactoryInterface $addToBasketControlFactory,
+        BasketContentControlFactoryInterface $basketContentControlFactory
+    ) {
+        $this-&gt;addToBasketControlFactory = $addToBasketControlFactory;
+        $this-&gt;basketContentControlFactory = $basketContentControlFactory;
+    }
+
+    public function renderDefault()
+    {
+        $this-&gt;template-&gt;setParameters([
+            'products' =&gt; self::PRODUCTS
+        ]);
+    }
+
+    protected function createComponentAddToBasket(): Multiplier
+    {
+        // Musíme použít Multiplier, protože potřebujeme samostatnou instanci pro každý produkt.
+        // Co je to Multiplier? Více informací najdeš ve článku https://pla.nette.org/cs/multiplier.
+
+        return new Multiplier(function($productId) {
+            $product = [];
+            foreach (self::PRODUCTS as $productData) {
+                if ($productData['id'] === (int) $productId) {
+                    $product = $productData;
+                    break;
+                }
+            }
+
+            return $this-&gt;addToBasketControlFactory-&gt;create($product);
+        });
+    }
+
+    protected function createComponentBasketContent(): BasketContentControl
+    {
+        return $this-&gt;basketContentControlFactory-&gt;create();
+    }
+
+}</code></pre>
+<p>V presenteru <code>CategoryPresenter</code> máme zaregistrované komponenty <code>AddToBasketControl</code> a <code>BasketContentControl</code>. Komponenta <code>AddToBasketControl</code> bude sloužit pro přidání produktu do košíku a komponenta <code>BasketContentControl</code> nám bude vypisovat produkty v košíku. Naším cílem bude po přidání produktu do košíku v komponentě <code>AddToBasketControl</code> překreslit komponentu <code>BasketContentControl</code> pomocí událostí.</p>
+<h2>Nástroje</h2>
+<p>Budeme potřebovat <a href="http://symfony.com/doc/current/components/event_dispatcher.html">Symfony\EventDispatcher</a> (základní infromace o něm můžete načerpat z článku <a href="https://pehapkari.cz/blog/2016/12/05/symfony-event-dispatcher/">Event Dispatcher from the Scratch</a>). To je vše! :)</p>
+<h2>Napojíme <code>Symfony\EventDispatcher</code> do Nette DI</h2>
+<p>Vždy jsem si myslel, že <strong>propojit Symfony a Nette</strong> nejde nebo je to velmi složité. No - složité to není, takže s chutí do toho!</p>
+<p>Spustíme příkaz <code>composer require symfony/event-dispatcher</code> a následně zaregistrujeme <code>EventDispatcher</code> do <code>Nette/DI</code>.</p>
+<pre><code class="language-yaml">// config.neon
+
+services:
+    - Symfony\Component\EventDispatcher\EventDispatcher</code></pre>
+<p>Propojení Nette a Symfony máme hotové. Tak co jsem říkal, je to složité? :)</p>
+<p>V tuto chvíli máme vše co potřebujeme. Máme myšlenku toho co chceme udělat a všechny potřebné nástroje, takže <strong>jdeme na to</strong>!</p>
+<h2>Registrace komponenty jako posluchače do EventDispatcheru</h2>
+<p>Zde se nám hodí znát jaký má Presenter v Nette <a href="https://doc.nette.org/cs/2.4/presenters#toc-zivotni-cyklus-presenteru">životní cyklus</a>. Pro náš počin se výborně hodí metoda <code>startup()</code>. Při jejím volání je již presenter nakonfigurován a tak máme přístup ke komponentám. V metodě <code>startup()</code> tedy řekneme <code>EventDispatcher</code>u, které komponenty si má zaregistrovat jako posluchače.</p>
+<p>Do našeho presenteru <code>CategoryPresenter</code> tedy přidáme metodu <code>startup()</code> a zároveň si přidáme závislost na <code>EventDispatcher</code>.</p>
+<pre><code class="language-php">// Presenter/CategoryPresenter.php
+
+...
+
+/**
+ * @var EventDispatcherInterface
+ */
+private $eventDispatcher;
+
+public function __construct(
+    AddToBasketControlFactoryInterface $addToBasketControlFactory,
+    BasketContentControlFactoryInterface $basketContentControlFactory,
+    EventDispatcherInterface $eventDispatcher
+) {
+    $this-&gt;addToBasketControlFactory = $addToBasketControlFactory;
+    $this-&gt;basketContentControlFactory = $basketContentControlFactory;
+    $this-&gt;eventDispatcher = $eventDispatcher;
+}
+
+public function startup()
+{
+    parent::startup();
+
+    // Magic goes here!
+}
+
+...</code></pre>
+<p><code>EventDispatcher</code> pro přidání nových posluchačů na události používá metodu <a href="http://symfony.com/doc/current/components/event_dispatcher.html#connecting-listeners">addListener</a>, která má dva parametry. První parametrem je název události, na kterou posluchač poslouchá a druhým parametrem je callback, který se zavolá při vyvolání události. Docela jednoduché API, že? :)</p>
+<p>Přes nově nabyté znalosti tedy <strong>vytvoříme událost</strong>, kterou bude vyvolávat komponenta <code>AddTobasketControl</code> a zaregistrujeme komponentu <code>BasketContentControl</code> do <code>EventDispatcher</code>u jako posluchače této události.</p>
+<pre><code class="language-php">// Event/ProductAddedToBasketEvent.php
+
+use Symfony\Component\EventDispatcher\Event;
+
+final class ProductAddedToBasketEvent extends Event
+{
+
+    /**
+     * @var int
+     */
+    private $id;
+
+    /**
+     * @var string
+     */
+    private $name;
+
+    /**
+     * @var int
+     */
+    private $price;
+
+    public function __construct(int $id, string $name, int $price)
+    {
+        $this-&gt;id = $id;
+        $this-&gt;name = $name;
+        $this-&gt;price = $price;
+    }
+
+    public function getId(): int
+    {
+        return $this-&gt;id;
+    }
+
+    public function getName(): string
+    {
+        return $this-&gt;name;
+    }
+
+    public function getPrice(): int
+    {
+        return $this-&gt;price;
+    }
+
+}</code></pre>
+<pre><code class="language-php">// Presenter/CategoryPresenter.php
+
+use Event\ProductAddedToBasketEvent;
+
+...
+
+public function startup()
+{
+    parent::startup();
+
+    $basketContentControl = $this-&gt;getComponent('basketContent');
+
+    $this-&gt;eventDispatcher-&gt;addListener(
+        ProductAddedToBasketEvent::class,
+        [$basketContentControl, 'onProductAddedToBasketEvent']
+    );
+}
+...</code></pre>
+<h2>Vyvolání události</h2>
+<p>Tak už máme <code>EventDispatcher</code> napojený do Nette. Také máme komponentu <code>BasketContentControl</code> zaregistrovanou jako posluchače události <code>ProductAddedToBasketEvent</code>. Takže je na řadě <strong>samotné vyvolání události</strong>.</p>
+<p>To se udělá opět velmi snadno - konkrétně přes metodu <a href="http://symfony.com/doc/current/components/event_dispatcher.html#dispatch-the-event">dispatch</a>, která je nečekaně součástí <code>EventDispatcher</code>u. Metoda má opět dva parametry. První parametr je název události, která se bude vyvolávat (na tento název jsou zaregistrováni posluchači). Druhý parametr je samotná instance události, přes kterou můžete předávat data do posluchačů.</p>
+<p>Dost teorie - <strong>chci vyvolat svoji událost</strong>!</p>
+<pre><code class="language-php">// Control/AddToBasketControl/AddToBasketControl.php
+
+use Nette\Application\UI\Control;
+use Event\ProductAddedToBasketEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+
+final class AddToBasketControl extends Control
+{
+
+    /**
+     * @var array
+     */
+    private $product;
+
+    /**
+     * @var EventDispatcherInterface
+     */
+    private $eventDispatcher;
+
+    public function __construct(array $product, EventDispatcherInterface $eventDispatcher)
+    {
+        $this-&gt;product = $product;
+        $this-&gt;eventDispatcher = $eventDispatcher;
+    }
+
+    public function handleAdd()
+    {
+        // Zde může být nějaká složitější logika
+        // např.: $this-&gt;basketFacade-&gt;addProduct($this-&gt;product);
+
+        // vytvoříme instanci události
+        $productAddedToBasketEvent = new ProductAddedToBasketEvent(
+            $this-&gt;product['id'],
+            $this-&gt;product['name'],
+            $this-&gt;product['price']
+        );
+        $this-&gt;eventDispatcher-&gt;dispatch(ProductAddedToBasketEvent::class, $productAddedToBasketEvent); // vyvoláme událost!
+    }
+
+    public function render()
+    {
+        $this-&gt;template-&gt;render(__DIR__ . '/templates/default.latte');
+    }
+
+}</code></pre>
+<p>Pokud někdo klikne na link vedoucí do <code>handleAdd</code> metody, tak bude vyvolána událost <code>ProductAddedToBasketEvent</code>, na kterou čeká a poslouchá naše druhá komponenta <code>BasketContentControl</code>. Komponenta <code>BasketContentControl</code> může vypadat následovně.</p>
+<pre><code class="language-php">// Control/BasketContentControl/BasketContentControl.php
+
+use Nette\Application\UI\Control;
+use Event\ProductAddedToBasketEvent;
+
+final class BasketContentControl extends Control
+{
+
+    /**
+     * @var array
+     */
+    private $products = [];
+
+    // Tuto metodu zavolá EventSubscriber, protože je nastavena jako listener callback v CategoryPresenter::startup()
+    public function onProductAddedToBasketEvent(ProductAddedToBasketEvent $productAddedToBasketEvent)
+    {
+        $product = [
+            'id' =&gt; $productAddedToBasketEvent-&gt;getId(),
+            'name' =&gt; $productAddedToBasketEvent-&gt;getName(),
+            'price' =&gt; $productAddedToBasketEvent-&gt;getPrice(),
+        ];
+
+        $this-&gt;products[] = $product;
+
+        $this-&gt;redrawControl('content');
+    }
+
+    public function render()
+    {
+        $this-&gt;template-&gt;setParameters([
+            'products' =&gt; $this-&gt;products
+        ]);
+
+        $this-&gt;template-&gt;render(__DIR__ . '/templates/default.latte');
+    }
+
+}</code></pre>
+<h2>Oddechneme si u šablon</h2>
+<blockquote>
+<p>Tato sekce přímo nesouvisí s tím, jak registrovat komponentu jako posluchače, ale pro náš příklad je stejně tak důležitá jako kterákoliv předchozí sekce.</p>
+</blockquote>
+<p>V šabloně presenteru si vykreslíme komponentu <code>BasketContentControl</code> a vypíšeme seznam produktů.</p>
+<pre><code class="language-html">&lt;!-- /templates/Category/default.latte --&gt;
+
+{control basketContent}
+&lt;table&gt;
+    &lt;tr n:foreach="$products as $product"&gt;
+        &lt;td&gt;{$product['id']}&lt;/td&gt;
+        &lt;td&gt;{$product['name']}&lt;/td&gt;
+        &lt;td&gt;{$product['price']}&lt;/td&gt;
+        &lt;td&gt;{control 'addToBasket-' . $product['id']}&lt;/td&gt;
+    &lt;/tr&gt;
+&lt;/table&gt;</code></pre>
+<p>Následuje šablona pro vykreslení odkazu pro přidání produktu do košíku.</p>
+<pre><code class="language-html">&lt;!--Component/AddToBasketControl/templates/default.latte --&gt;
+
+&lt;a n:href="add!" class="ajax"&gt;Přidat do košíku&lt;/a&gt;</code></pre>
+<ul>
+<li>Pro ajaxovou funkčnost použijeme javascriptovou knihovnu <a href="https://componette.com/vojtech-dobes/nette.ajax.js/">nette.ajax.js</a>.</li>
+</ul>
+<p>A do třetice je tu šablona pro vykreslení obsahu košíku.</p>
+<pre><code class="language-html">&lt;!-- Component/BasketContentControl/templates/default.latte --&gt;
+
+{snippet content}
+    &lt;table&gt;
+        &lt;tr n:foreach="$products as $product"&gt;
+            &lt;td&gt;{$product['id']}&lt;/td&gt;
+            &lt;td&gt;{$product['name']}&lt;/td&gt;
+            &lt;td&gt;{$product['price']}&lt;/td&gt;
+        &lt;/tr&gt;
+    &lt;/table&gt;
+{/snippet}</code></pre>
+<p>Nyní máme vše hotové a <strong>můžeme spustit aplikaci</strong>!</p>
+<h3>Existuje i jiné řešení bez událostí?</h3>
+<p>Samozřejmě! Stačí upravit metodu <code>handleAdd</code> v <code>AddToBasketControl</code> například takto:</p>
+<pre><code class="language-php">public function handleAdd()
+{
+    $this-&gt;presenter-&gt;getComponent('basketContent')-&gt;onProductAddedToBasket($this-&gt;product);
+}</code></pre>
+<p>U tohoto řešení je problém v tom, že <strong>komponenta</strong> <code>addToBasketControl</code> <strong>zná implementaci presenteru</strong>, ve kterém je připojena a spoléhá na to, že je v něm zaregistrovaná componenta s názvem <code>basketContent</code>. Pokud bych tedy chtěl komponentu <code>addToBasketControl</code> použít v jiném presenteru, musel bych v něm zaregistrovat i komponentu <code>BasketContentControl</code>, což je nehezké provázání závislostí.</p>
+<p>Co pak, když by bylo potřeba, aby na událost <code>ProductAddedToBasket</code> poslouchala i jiná komponenta? OK - upravíme metodu na:</p>
+<pre><code class="language-php">public function handleAdd()
+{
+    $this-&gt;presenter-&gt;getComponent('basketContent')-&gt;onProductAddedToBasket($this-&gt;product);
+    $this-&gt;presenter-&gt;getComponent('anotherComponent')-&gt;onProductAddedToBasket($this-&gt;product);
+}</code></pre>
+<p>a už tu vzniká programming hell a <strong>programátorský dluh do budoucnosti</strong>.</p>
+<p>Druhý mnohem složitější problém by nastal v momentě, kdy se událost nevyhazuje v komponentě, ale v nějaké službě. Typicky můžeme mít <code>BasketFacade</code>, která před přidáním produktu do košíku musí zvalidovat např. to, zda může být produkt přidán do košíku a pokud ano, tak produkt přidá a vyvolá událost. Pak nám nezbývá  nic jiného než použití <code>return</code> pokud bychom chtěli událost přeci jen vyvolávat v komponentě. Problém může být, ale pokud <code>BasketFacade</code> deleguje požadavek na přidání produktu jiné službě apod. Pak musíme <code>return</code>ovat <code>return</code>y z celého řetezce volaných metod a to je pěkný oser. :)</p>
+<h2>Shrnutí</h2>
+<p>Ukázali jsme si jak jednoduše se dá propojit Symfony s Nette a <strong>jak přimět komponenty poslouchat na události</strong>. Zároveň jsme si osvěžili práci se ajaxem, snippety a vysvětlili jsme si, jak fungují <strong>události a posluchači</strong>.</p>
+<p>Jaký to dobrý pocit z nově nabytých znalostí! :)</p>
+<h2>Chceš znát více?</h2>
+<p>Zde jsou linky pro zvídavé programátory/ky:</p>
+<ul>
+<li><a href="https://doc.nette.org/cs/2.4/presenters">https://doc.nette.org/cs/2.4/presenters</a></li>
+<li><a href="https://doc.nette.org/cs/2.4/presenters#toc-presenter-a-komponenty">https://doc.nette.org/cs/2.4/presenters#toc-presenter-a-komponenty</a></li>
+<li><a href="http://symfony.com/doc/current/components/event_dispatcher.html">http://symfony.com/doc/current/components/event_dispatcher.html</a></li>
+<li><a href="https://github.com/nette/di">https://github.com/nette/di</a></li>
+<li><a href="https://doc.nette.org/cs/2.4/ajax">https://doc.nette.org/cs/2.4/ajax</a></li>
+</ul>
+
+        <br>
+
+        <div class="container">
+            <div id="disqus_thread"></div>
+
+<script type="text/javascript">
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//pehapkari.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+        </div>
+
+        <br>
+    </div>
+
+            </div>
+        
+        <div id="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-6 mt-3 mt-md-0">
+                <p class="mb-2">Web Péhápkaři.cz pohání <a href="https://symfony.com/">Symfony</a> a najdeš ho na <a href="https://github.com/pehapkari/pehapkari.cz">Githubu</a>.</p>
+
+                                            </div>
+
+            <div class="col-12 col-md-6 mt-4 mt-md-0">
+                <ul id="socials" class="pull-right">
+                    <li>
+                        <a href="https://facebook.com/pehapkari">
+                            <em class="fab fa-2x fa-facebook"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://twitter.com/pehapkari">
+                            <em class="fab fa-2x fa-twitter"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/friends-of-php-prague/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Praha</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/Pehapkari-Brno/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Brno</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://github.com/pehapkari">
+                            <em class="fab fa-2x fa-github"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ">
+                            <em class="fab fa-2x fa-slack"></em>
+                        </a>
+                        <p>
+                            <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ/">
+                                <span class="hidden-sm-down">Pozvi se</span>
+                                <span class="hidden-md-up">Pozvi</span>
+                            </a>
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="footer_body">
+            <div class="row">
+                <div class="col-6 col-md-4 mb-4 mb-md-0">
+                    <h3>O nás</h3>
+
+                    <ul class="bottom_menu">
+                        <li>
+                            <a href="/kontakt">Kontakt</a>
+                        </li>
+
+                        <li>
+                            <a href="/for-speakers">Pro speakry</a>
+                        </li>
+
+                        <li>
+                            <a href="https://github.com/pehapkari/pehapkari.cz/tree/master/public/assets/pehapkari_logo">Logo</a>
+                        </li>
+
+                        <li>
+                            <a href="/rss.xml">RSS blogu</a>
+                        </li>
+
+                        <li>
+                            <a href="http://bit.ly/pehapkari-newsletter">Sleduj Newsletter</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/build/js/app.js"></script>
+
+<script
+    src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
+<script>
+    $('document').ready(function() {
+        var typed = new Typed('#typed',{
+            stringsElement: '#typed-strings',
+            typeSpeed: 50,
+            backDelay: 1400,
+        });
+    });
+</script>
+
+<script src="/assets/prism/prism.js"></script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-89860072-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-89860072-1');
+</script>
+    </body>
+</html>
