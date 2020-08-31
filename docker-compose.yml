@@ -1,0 +1,16 @@
+version: "3.7"
+services:
+    web:
+        image: pehapkari_cz
+        restart: unless-stopped
+        build:
+            context: .
+            dockerfile: Dockerfile
+        env_file:
+            - .env
+        ports:
+            - "8080:80"
+        volumes:
+            - .:/var/www/pehapkari.cz:cached
+        tmpfs:
+            - /var/www/pehapkari.cz/var/cache

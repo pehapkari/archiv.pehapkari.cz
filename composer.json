@@ -4,7 +4,6 @@
     "require": {
         "php": "^7.4",
         "ext-iconv": "*",
-        "ext-intl": "*",
         "ext-json": "*",
         "chumper/zipper": "^1.0",
         "composer/ca-bundle": "^1.2",
@@ -93,9 +92,7 @@
             "bin/clear_trailing_whitespaces.sh"
         ],
         "phpstan": "php -d memory_limit=1G vendor/bin/phpstan analyse --ansi --error-format symplify",
-        "rector": "vendor/bin/rector process --config rector-ci.yaml --ansi",
-        "doctrine": "bin/console doctrine:schema:update --dump-sql --force --ansi",
-        "migration": "bin/console doctrine:migrations:diff --ansi"
+        "rector": "vendor/bin/rector process --config rector-ci.yaml --ansi"
     },
     "config": {
         "sort-packages": true
