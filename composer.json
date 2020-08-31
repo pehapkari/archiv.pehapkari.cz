@@ -45,7 +45,8 @@
         "symplify/autowire-array-parameter": "^8.0",
         "symplify/easy-hydrator": "^8.2",
         "symplify/flex-loader": "^8.0",
-        "symplify/package-builder": "^8.0"
+        "symplify/package-builder": "^8.0",
+        "symplify/symfony-static-dumper": "^8.2"
     },
     "require-dev": {
         "nette/application": "^3.0",
@@ -88,8 +89,7 @@
         ],
         "check-cs": "vendor/bin/ecs check --ansi",
         "fix-cs": [
-            "vendor/bin/ecs check --fix --ansi",
-            "bin/clear_trailing_whitespaces.sh"
+            "vendor/bin/ecs check --fix --ansi"
         ],
         "phpstan": "php -d memory_limit=1G vendor/bin/phpstan analyse --ansi --error-format symplify",
         "rector": "vendor/bin/rector process --config rector-ci.yaml --ansi"

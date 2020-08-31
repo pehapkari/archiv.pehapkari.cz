@@ -10,4 +10,5 @@ return [
     Symfony\WebpackEncoreBundle\WebpackEncoreBundle::class => ['all' => true],
     Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle::class => ['all' => true],
     Symplify\EasyHydrator\EasyHydratorBundle::class => ['all' => true],
+    Symplify\SymfonyStaticDumper\SymfonyStaticDumperBundle::class => ['all' => true],
 ];

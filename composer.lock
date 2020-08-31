@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0f173218f5db5b2315b00a9a43b8116c",
+    "content-hash": "d9ef4c5399ac946cfb2fb213edd31c35",
     "packages": [
         {
             "name": "chumper/zipper",
@@ -6957,6 +6957,60 @@
                 }
             ],
             "time": "2020-08-30T23:49:42+00:00"
+        },
+        {
+            "name": "symplify/symfony-static-dumper",
+            "version": "8.2.17",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symplify/symfony-static-dumper.git",
+                "reference": "b978717d6d53127e8e0368811f091c3ab1abd28c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symplify/symfony-static-dumper/zipball/b978717d6d53127e8e0368811f091c3ab1abd28c",
+                "reference": "b978717d6d53127e8e0368811f091c3ab1abd28c",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.2|^8.0",
+                "symfony/config": "^4.4|^5.0",
+                "symfony/console": "^4.4|^5.0",
+                "symfony/dependency-injection": "^4.4|^5.0",
+                "symfony/filesystem": "^4.4|^5.0",
+                "symfony/finder": "^4.4|^5.0",
+                "symfony/http-foundation": "^4.4|^5.0",
+                "symfony/http-kernel": "^4.4|^5.0",
+                "symfony/routing": "^4.4|^5.0",
+                "symplify/autowire-array-parameter": "^8.2.17",
+                "symplify/package-builder": "^8.2.17",
+                "symplify/smart-file-system": "^8.2.17"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^0.12.40",
+                "phpunit/phpunit": "^8.5|^9.0",
+                "symfony/framework-bundle": "^4.4|^5.0",
+                "symfony/twig-bundle": "^4.4|^5.0",
+                "symplify/autodiscovery": "^8.2.17",
+                "symplify/flex-loader": "^8.2.17"
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "8.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symplify\\SymfonyStaticDumper\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Dump Symfony application to Static Website",
+            "time": "2020-08-31T17:03:26+00:00"
         },
         {
             "name": "twig/twig",

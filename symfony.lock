@@ -977,6 +977,9 @@
     "symplify/smart-file-system": {
         "version": "v7.0.2"
     },
+    "symplify/symfony-static-dumper": {
+        "version": "8.2.17"
+    },
     "theseer/tokenizer": {
         "version": "1.1.3"
     },
