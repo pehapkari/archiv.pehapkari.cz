@@ -14,3 +14,12 @@ services:
             - .:/var/www/pehapkari.cz:cached
         tmpfs:
             - /var/www/pehapkari.cz/var/cache
+
+    yarn-watch:
+        image: node:14-alpine
+        restart: unless-stopped
+        working_dir: /var/www/pehapkari.cz
+        volumes:
+            - .:/var/www/pehapkari.cz:delegated
+        entrypoint: [ "" ]
+        command: "ash -c 'yarn install && yarn run watch'"
