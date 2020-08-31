@@ -10,7 +10,8 @@ fi
 chmod 777 -R var
 
 composer install --prefer-dist --no-progress --no-suggest --no-interaction -o
-## bin/console assets:install is run automatically - check composer.json scripts:auto-scripts
+
+## bin/console assets:install ## is run automatically - check composer.json scripts:auto-scripts
 
 # Run (original) Docker command
 exec "$@"
