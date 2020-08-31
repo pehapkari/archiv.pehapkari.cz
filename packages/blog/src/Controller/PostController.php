@@ -11,8 +11,9 @@ use Pehapkari\Exception\PostNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symplify\SymfonyStaticDumper\Contract\ControllerWithDataProviderInterface;
 
-final class PostController extends AbstractController
+final class PostController extends AbstractController implements ControllerWithDataProviderInterface
 {
     private AuthorRepository $authorsProvider;
 
@@ -36,6 +37,24 @@ final class PostController extends AbstractController
             'authors' => $this->authorsProvider->fetchAll(),
             'title' => $post->getTitle(),
         ]);
+    }
+
+    public function getControllerClass(): string
+    {
+        return self::class;
+    }
+
+    public function getControllerMethod(): string
+    {
+        return '__invoke';
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getArguments(): array
+    {
+        return $this->postRepository->getAllSlugs();
     }
 
     private function resolvePost(string $postSlug): Post

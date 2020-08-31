@@ -53,6 +53,20 @@ final class PostRepository
         return $this->posts;
     }
 
+    /**
+     * @return string[]
+     */
+    public function getAllSlugs(): array
+    {
+        $slugs = [];
+
+        foreach ($this->posts as $post) {
+            $slugs[] = $post->getSlug();
+        }
+
+        return $slugs;
+    }
+
     private function initPosts(PostFactory $postFactory): void
     {
         foreach ($this->findPostMarkdownFileInfos() as $smartFileInfo) {
