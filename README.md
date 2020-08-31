@@ -1,41 +1,16 @@
-# Web of Czech PHP Community
+# Archive of pehapkari.cz
 
-[![Build Status](https://img.shields.io/travis/pehapkari/pehapkari.cz/master.svg?style=flat-square)](https://travis-ci.org/pehapkari/pehapkari.cz)
+This repository is older version of pehapkari.cz and its purpose is to be place of old blog posts because we did not want to lose them. Possibly we will find another purpose for this repo.
 
-We're family of PHP developers from the Czech Republic, learning from each other on meetups and trainings.
-We meet once a month in Prague, Brno and less often 4 other cities.
 
-## Install
+## Site generation
 
-```bash
-# install PHP dependencies
-composer install
-
-# install NPM dependencies
-yarn install
-
-# build assets + live rebuild
-yarn run watch
-
-# final step - run the website
-php -S localhost:8000 -t public
+Source application is in `site-generator` directory, any time you change source, generate static site by running:
+```
+./generate-site.sh
 ```
 
-Open [localhost:8000](http://localhost:8000) to see if it worked!
+Directory `output` is acessible on [archiv.pehapkari.cz](https://archiv.pehapkari.cz) (served via Github pages).
 
-## Run via Docker
+How to run static generator application is explained in its readme file.
 
-```
-docker-compose up
-```
-
-**Project** is available on [localhost:8080](http://localhost:8080) including live rebuild (aka watch).
-
-## Production build
-
-Publicly, application is served as static, plaid old and good HTML+CSS.
-
-This command generates static files, into **/output** directory:
-```
-bin/console dump-static-site
-```
