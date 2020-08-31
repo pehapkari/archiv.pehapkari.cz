@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="cs">
+    <head>
+        <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="description" content="Otevřené místo pro všechny PHP programátory">
+<meta name="keywords" content="PHP, komunita, programování, srazy, školení, blog, články">
+<meta name="author" content="https://pehapkari.cz">
+<meta name="robots" content="index, follow">
+
+<meta property="og:image" content="/assets/images/meetup.jpg">
+<meta property="fb:pages" content="918297778220033" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<link rel="alternate" type="application/rss+xml" title="Péhápkaři.cz Blog RSS" href="/rss.xml">
+
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap&subset=latin-ext" rel="stylesheet">
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<link href="/favicon.ico" rel="shortcut icon">
+
+<title>
+     Logic Belongs to Entities | Děláš v PHP? Jsi jedním z nás
+</title>
+
+<link rel="stylesheet" href="/build/css/app.css">
+
+<link rel="stylesheet" href="/assets/prism/prism.css">
+<link rel="stylesheet" href="/assets/prism/prism-custom.css">
+
+<link rel="stylesheet" href="https://use.typekit.net/jmg2upk.css">
+
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i|Ubuntu+Mono&amp;subset=latin-ext" rel="stylesheet">
+
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    </head>
+
+    <body id="">
+        <nav id="ph-nav" class="navbar fixed-top navbar-expand navbar-light bg-light ph-nav border-bottom hidden-sm-down">
+    <div class="container">
+        <a class="ph-nav__logo" href="/">
+            <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+            <br>
+            <p>Péhápkaři</p>
+        </a>
+
+        <div id="top-menu-search" class="hidden-md-down">
+            <form method="get" action="https://www.google.com/search" itemprop="potentialAction" itemscope="" itemtype="http://schema.org/SearchAction">
+    <meta itemprop="target" content="https://www.google.com/search?q={q}"/>
+    <input name="sitesearch" value="pehapkari.cz" type="hidden"/>
+    <input itemprop="query-input" type="text" id="search-query" class="form-control" required="required" name="q" placeholder="Napiš co hledáš..." autocomplete="off"/>
+</form>
+        </div>
+
+        <ul class="navbar-nav ml-auto hidden-sm-down" id="menu">
+            <li>
+                <a class="active" href="/blog">
+                    Blog
+                </a>
+            </li>
+            <li>
+                <a class="" href="/prehaj-si-prednasku">
+                    Videa
+                </a>
+            </li>
+            <li class="pr-0">
+                <a class="" href="/kontakt">
+                    Kontakt
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div id="mobile-menu" class="row ml-0 mr-0 text-center hidden-md-up border-bottom">
+    <a href="/" class="ph-nav__logo col-3 ">
+        <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+    </a>
+
+    <a href="/prehaj-si-prednasku" class="col-3 ">
+        Videa
+    </a>
+    <a href="/blog" class="col-3 ">
+        Blog
+    </a>
+</div>
+
+                    <div id="main">
+                
+
+                    <div class="container" id="article">
+        <h1>Logic Belongs to Entities</h1>
+
+        <strong>Svaťa Šimara</strong>
+        &nbsp;
+        <time datetime="2019-06-Sun">
+            2. 6. 2019
+        </time>
+
+        <br>
+
+        <div class="card mt-4 mb-4">
+            <div class="card-body text-bigger">
+                <p>The business logic belongs to entities.
+This sentence is being said over and over again in books and during conferences.
+But the sad truth is that a lot of large application has an anemic model and it seems to be impossible to refactor the difficult logic to entities.
+But is it really impossible?</p>
+            </div>
+        </div>
+
+        <p>Encapsulating the business logic into entities is especially difficult when the logic involves something more.
+<em>Something more</em> could be a different module, external system, database, ...</p>
+<h2>Example</h2>
+<p>We have a Cart in the online store system, the Cart is responsible for handling items (add, remove) but not prices.
+Once we want to show the total price of the Cart, we have to use fresh prices from the database because product prices are changed often.</p>
+<pre><code class="language-php">class Money {
+    // properties
+
+    // static constructor
+    public static function fromString(string $input): Money;
+
+    public function multiply(float $multiplier): Money;
+    public function toString(): string; // 1500 €
+
+    /**
+     * @param $arrayOfMoney Money[]
+     */
+    public static function sum(array $arrayOfMoney): Money;
+}
+
+class Item {
+    // properties, constructor
+
+    public function getAmount(): float; // 4.0
+    public function getProductId(): int // 123
+}</code></pre>
+<h2>Logic in Service</h2>
+<p>Let's start with a service implementation that can be usually found in large applications (usually and sadly).
+The benefit of this implementation is that it works</p>
+<pre><code class="language-php">class Cart {
+    /**
+     * @return Item[]
+     */
+    public function getItems(): array;
+
+    // constructor
+}
+
+class CartTotalPriceService {
+    /**
+     * @var PDO
+     */
+    private $pdo;
+
+    // constructor
+
+    public function calculate(Cart $cart): Money {
+        $prices = [];
+        foreach ($cart-&gt;getItems() as $item) {
+            $price = $this-&gt;refreshPrice($item-&gt;getProductId());
+            $prices[] = $price-&gt;multiply($item-&gt;getAmount());
+        }
+
+        return Money::sum($prices);
+    }
+
+    private function refreshPrice(int $productId): Money {
+        $statement = $this-&gt;pdo-&gt;query("SELECT price FROM product WHERE id = :id");
+        $statement-&gt;bindParam(':id', $productId);
+        $result = $statement-&gt;fetch(PDO::FETCH_ASSOC);
+        $number = (string) $result['price'];
+        return Money::fromString($number);
+    }
+}
+
+// usage
+$totalPrice = $this-&gt;cartTotalPriceService-&gt;calculate($cart);
+</code></pre>
+<p>We can use Doctrine, our favorite ORM or a different database layer instead of PDO, but the code will be similar.</p>
+<p>As we can see, we collect data from Cart entity and then do the business logic.
+This approach is difficult to test, breaks encapsulation, leads to an anemic model with a logic outside of entities.
+Not so good outcome.</p>
+<h2>Think About Use-Case Only</h2>
+<p>The theme of this article is logic in entities, but let's think about the use-case <strong>Calculate Cart Total Price</strong> without programming first.
+To be able to finish the use-case we need</p>
+<ul>
+<li>a Price of each Product</li>
+<li>Amount of each of Products</li>
+</ul>
+<p>That's all we need.
+It doesn't matter if the use-case is implemented in service or entity, we need all this information in both implementation.</p>
+<h2>Moving Logic to Cart Entity</h2>
+<p>Our goal is to implement calculating the total price in the Cart entity itself.</p>
+<p>We already know the amount of each of the products in the Cart, so there is no problem.</p>
+<p>But we also need to know the price of each Product in the Cart.
+We don't need to know prices in the whole Cart, we need to know prices only during the calculation of the total price.
+So if we pass <strong>Product Prices</strong> just to the calculating method, we solve the problem.</p>
+<p>And we can achieve <strong>Product Prices</strong> by an interface</p>
+<pre><code class="language-php">interface ProductPrices {
+    public function refreshPrice(int $productId): Money;
+}</code></pre>
+<p>Now we can pass this interface into the calculation method that sits in the Cart</p>
+<pre><code class="language-php">class Cart {
+    /**
+     * var Item[]
+     */
+    private $items;
+
+    // constructor
+
+    public function calculateTotalPrice(ProductPrices $productPrices): Money {
+        $prices = [];
+        foreach ($this-&gt;items as $item) {
+            $price = $productPrices-&gt;refreshPrice($item-&gt;getProductId());
+            $prices[] = $price-&gt;multiply($item-&gt;getAmount());
+        }
+
+        return Money::sum($prices);
+    }
+}
+
+// usage
+$totalPrice = $cart-&gt;calculateTotalPrice($this-&gt;productPrices);</code></pre>
+<p>As we can see, the method is logically as same as it was in <code>CartTotalPriceService</code>.
+But there are a couple of important differences</p>
+<ul>
+<li>The logic sits together with data in the Cart entity, this leads to a rich model</li>
+<li>The Cart doesn't expose data (Items), Items are therefore properly encapsulated</li>
+<li>This code is testable as we can mock the interface in tests to produce predictable prices</li>
+<li>By the way, this was our goal - to have the logic in the entity</li>
+</ul>
+<h3>Interface Implementation</h3>
+<p>The interface has to be implemented anyway, but that's not a problem at all</p>
+<pre><code class="language-php">class PDOProductPrices implements ProductPrices {
+    /**
+     * @var PDO
+     */
+    private $pdo;
+
+    // constructor
+
+    public function refreshPrice(int $productId): Money {
+        $statement = $this-&gt;pdo-&gt;query("SELECT price FROM product WHERE id = :id");
+        $statement-&gt;bindParam(':id', $productId);
+        $result = $statement-&gt;fetch(PDO::FETCH_ASSOC);
+        $number = (string) $result['price'];
+        return Money::fromString($number);
+    }
+}</code></pre>
+<p>Do you remember <code>CartTotalPriceService</code>? The code is the same.</p>
+<p>And again we can use our favorite ORM, or database layer to implement the interface.
+We can do even more, the implementation can use different system module or even API to a different system.
+We are not limited by technology, all thanks to the interface.</p>
+<h4>Only One Implementation</h4>
+<p>We will usually have only one implementation for such an interface, that is strange, isn't it wrong?</p>
+<p>We are using interface to separate layers in this case.
+We separate the business logic layer and infrastructure (database) layer.
+And that is a valid interface usage.</p>
+<h2>Moving Logic ...for Maniacs</h2>
+<p>Do you think the logic is moved well?
+I have a proposal for maniacs.</p>
+<p>An Item is probably a value object an moving the logic into value objects is even greater than moving the logic to entities.
+That's because value objects are immutable and the logic is, therefore, super easily testable and super separated.</p>
+<p>So let's move some logic into the Item</p>
+<pre><code class="language-php">class Item {
+    /**
+     * @var int
+     */
+    private $productId;
+
+    /**
+     * @var float
+     */
+    private $amount;
+
+    // constructor
+
+    public function calculatePrice(ProductPrices $productPrices): Money {
+        $price = $productPrices-&gt;refreshPrice($this-&gt;productId);
+        return $price-&gt;multiply($this-&gt;amount);
+    }
+}
+
+class Cart {
+    /**
+     * var Item[]
+     */
+    private $items;
+
+    // constructor
+
+    public function calculateTotalPrice(ProductPrices $productPrices): Money {
+        $prices = [];
+        foreach ($this-&gt;items as $item) {
+            $prices[] = $item-&gt;calculatePrice($productPrices);
+        }
+
+        return Money::sum($prices);
+    }
+}
+
+// usage is still the same
+$totalPrice = $cart-&gt;calculateTotalPrice($this-&gt;productPrices);</code></pre>
+<p>Even the Item has behavior now.
+The Item doesn't expose the data and contains the logic that directly uses the item itself.</p>
+<p>Maybe this paragraph isn't only for maniacs, but programmers are usually shocked just by the interface, so I decided to calm down a bit.</p>
+<h2>Conclusion</h2>
+<p>Moving logic to entities is possible, use an interface that provides the necessary information and passes it to the method.
+Logic in entities is easy to understand, leads to better testability, better layer separation, and better encapsulation.</p>
+<h2>Contact</h2>
+<p>If you struggle with moving logic to entities, contact me, I'll help You. Business logic is my passion... <a href="http://svatasimara.cz/">svatasimara.cz</a></p>
+
+        <br>
+
+        <div class="container">
+            <div id="disqus_thread"></div>
+
+<script type="text/javascript">
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//pehapkari.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+        </div>
+
+        <br>
+    </div>
+
+            </div>
+        
+        <div id="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-6 mt-3 mt-md-0">
+                <p class="mb-2">Web Péhápkaři.cz pohání <a href="https://symfony.com/">Symfony</a> a najdeš ho na <a href="https://github.com/pehapkari/pehapkari.cz">Githubu</a>.</p>
+
+                                            </div>
+
+            <div class="col-12 col-md-6 mt-4 mt-md-0">
+                <ul id="socials" class="pull-right">
+                    <li>
+                        <a href="https://facebook.com/pehapkari">
+                            <em class="fab fa-2x fa-facebook"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://twitter.com/pehapkari">
+                            <em class="fab fa-2x fa-twitter"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/friends-of-php-prague/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Praha</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/Pehapkari-Brno/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Brno</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://github.com/pehapkari">
+                            <em class="fab fa-2x fa-github"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ">
+                            <em class="fab fa-2x fa-slack"></em>
+                        </a>
+                        <p>
+                            <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ/">
+                                <span class="hidden-sm-down">Pozvi se</span>
+                                <span class="hidden-md-up">Pozvi</span>
+                            </a>
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="footer_body">
+            <div class="row">
+                <div class="col-6 col-md-4 mb-4 mb-md-0">
+                    <h3>O nás</h3>
+
+                    <ul class="bottom_menu">
+                        <li>
+                            <a href="/kontakt">Kontakt</a>
+                        </li>
+
+                        <li>
+                            <a href="/for-speakers">Pro speakry</a>
+                        </li>
+
+                        <li>
+                            <a href="https://github.com/pehapkari/pehapkari.cz/tree/master/public/assets/pehapkari_logo">Logo</a>
+                        </li>
+
+                        <li>
+                            <a href="/rss.xml">RSS blogu</a>
+                        </li>
+
+                        <li>
+                            <a href="http://bit.ly/pehapkari-newsletter">Sleduj Newsletter</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/build/js/app.js"></script>
+
+<script
+    src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
+<script>
+    $('document').ready(function() {
+        var typed = new Typed('#typed',{
+            stringsElement: '#typed-strings',
+            typeSpeed: 50,
+            backDelay: 1400,
+        });
+    });
+</script>
+
+<script src="/assets/prism/prism.js"></script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-89860072-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-89860072-1');
+</script>
+    </body>
+</html>

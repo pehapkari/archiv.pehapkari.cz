@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="cs">
+    <head>
+        <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="description" content="Otevřené místo pro všechny PHP programátory">
+<meta name="keywords" content="PHP, komunita, programování, srazy, školení, blog, články">
+<meta name="author" content="https://pehapkari.cz">
+<meta name="robots" content="index, follow">
+
+<meta property="og:image" content="/assets/images/meetup.jpg">
+<meta property="fb:pages" content="918297778220033" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<link rel="alternate" type="application/rss+xml" title="Péhápkaři.cz Blog RSS" href="/rss.xml">
+
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap&subset=latin-ext" rel="stylesheet">
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<link href="/favicon.ico" rel="shortcut icon">
+
+<title>
+     Arachne/Verifier - Request Validator for Nette/Application | Děláš v PHP? Jsi jedním z nás
+</title>
+
+<link rel="stylesheet" href="/build/css/app.css">
+
+<link rel="stylesheet" href="/assets/prism/prism.css">
+<link rel="stylesheet" href="/assets/prism/prism-custom.css">
+
+<link rel="stylesheet" href="https://use.typekit.net/jmg2upk.css">
+
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i|Ubuntu+Mono&amp;subset=latin-ext" rel="stylesheet">
+
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    </head>
+
+    <body id="">
+        <nav id="ph-nav" class="navbar fixed-top navbar-expand navbar-light bg-light ph-nav border-bottom hidden-sm-down">
+    <div class="container">
+        <a class="ph-nav__logo" href="/">
+            <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+            <br>
+            <p>Péhápkaři</p>
+        </a>
+
+        <div id="top-menu-search" class="hidden-md-down">
+            <form method="get" action="https://www.google.com/search" itemprop="potentialAction" itemscope="" itemtype="http://schema.org/SearchAction">
+    <meta itemprop="target" content="https://www.google.com/search?q={q}"/>
+    <input name="sitesearch" value="pehapkari.cz" type="hidden"/>
+    <input itemprop="query-input" type="text" id="search-query" class="form-control" required="required" name="q" placeholder="Napiš co hledáš..." autocomplete="off"/>
+</form>
+        </div>
+
+        <ul class="navbar-nav ml-auto hidden-sm-down" id="menu">
+            <li>
+                <a class="active" href="/blog">
+                    Blog
+                </a>
+            </li>
+            <li>
+                <a class="" href="/prehaj-si-prednasku">
+                    Videa
+                </a>
+            </li>
+            <li class="pr-0">
+                <a class="" href="/kontakt">
+                    Kontakt
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div id="mobile-menu" class="row ml-0 mr-0 text-center hidden-md-up border-bottom">
+    <a href="/" class="ph-nav__logo col-3 ">
+        <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+    </a>
+
+    <a href="/prehaj-si-prednasku" class="col-3 ">
+        Videa
+    </a>
+    <a href="/blog" class="col-3 ">
+        Blog
+    </a>
+</div>
+
+                    <div id="main">
+                
+
+                    <div class="container" id="article">
+        <h1>Arachne/Verifier - Request Validator for Nette/Application</h1>
+
+        <strong>Jáchym Toušek</strong>
+        &nbsp;
+        <time datetime="2017-08-Mon">
+            28. 8. 2017
+        </time>
+
+        <br>
+
+        <div class="card mt-4 mb-4">
+            <div class="card-body text-bigger">
+                <p>The concept behind <a href="https://github.com/Arachne/Verifier">Arachne/Verifier</a> was originally meant to solve annotations-based authorization for <a href="https://github.com/nette/application">Nette/Application</a>.
+Now after years of development it is no longer limited to neither annotations nor authorization making it a very powerful tool for your security layer.</p>
+            </div>
+        </div>
+
+        <h2>The Basics</h2>
+<p>With <a href="https://github.com/Arachne/Verifier">Arachne/Verifier</a> you can add rules to your presenters, actions, signals and components. They will be available only if all the rules are met, otherwise the request is denied.</p>
+<pre><code class="language-php">use App\Entity\Product;
+use Arachne\SecurityVerification\Rules\Privilege;
+use Nette\Application\UI\Presenter;
+use Symfony\Component\Validator\Constraints\IsTrue;
+
+class ArticlePresenter extends Presenter
+{
+    /**
+     * @Privilege(authorizator="admin", resource="Article", privilege="edit")
+     */
+    public function actionEdit(int $id): void
+    {
+        // ...
+    }
+}</code></pre>
+<p>The point is that you don't need to repeat these rules in your Latte templates to determine when to show which link. There is a macro to simplify this and keep your code <a href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself">DRY</a>.</p>
+<pre><code>{* Standard Nette way *}
+{if $user-&gt;isAllowed(Article, edit)}
+    &lt;a n:href="Article:edit $article-&gt;getId()"&gt;Edit&lt;/a&gt;
+{/if}
+
+{* Simplified using Arachne/Verfier *}
+&lt;a n:ifLinkVerified="Article:edit $article-&gt;getId()" n:href&gt;Edit&lt;/a&gt;</code></pre>
+<h3>Available rules</h3>
+<p>First install Arachne/Verifier according to <a href="https://github.com/Arachne/Verifier/blob/master/docs/index.md">documentation</a>.</p>
+<p>Next you'll need some rules for Verifier. <strong>Arachne has 3 packages providing some rules.</strong></p>
+<h3>1. <a href="https://github.com/Arachne/SecurityVerification">Arachne/SecurityVerification</a></h3>
+<p>This package provides rules for <a href="https://github.com/Arachne/Security">Arachne/Security</a>. Read my <a href="/blog/2017/08/14/arachne-security-separate-authentication-and-session-refresh">previous</a> <a href="/blog/2017/08/21/arachne-security-simplified-authorizator-and-fixed-acl-callbacks">articles</a> for details. There are 4 rules in total:</p>
+<h4><code>@Identity(firewall="admin")</code></h4>
+<p>The most basic rule that simply requires the user to be authenticated via the specified Arachne/Security firewall.</p>
+<h4><code>@NoIdentity(firewall="admin")</code></h4>
+<p>The opposite of the previous rule, allows only non-authenticated users. This can be used for example to show ads only to unregistered users.</p>
+<h4><code>@Role(firewall="admin", role="Redactor")</code></h4>
+<p>Restricts access to just users with the specified role.</p>
+<h4><code>@Privilege(authorizator="admin", resource="Article", privilege="edit")</code></h4>
+<p><a href="https://doc.nette.org/en/2.4/access-control#toc-permission-acl">ACL</a> based authorization rules can solve advanced cases with configurable privileges.</p>
+<h3>2. <a href="https://github.com/Arachne/ParameterValidation">Arachne/ParameterValidation</a></h3>
+<p>This package provides only one rule - <code>@Validate</code>. It can be used to validate the request parameters using <a href="http://symfony.com/doc/current/validation.html#constraints">Symfony/Validator constraints</a>. This addon can validate the request parameters like this.</p>
+<pre><code class="language-php">use Symfony\Component\Validator\Constraints\GreaterThan;
+
+/**
+ * @Validate(parameter="price", constraints=@GreaterThan(0)),
+ */
+public function actionChangeProductPrice(int $id, int $price): void
+{
+    // ...
+}</code></pre>
+<h3>3. <a href="https://github.com/Arachne/ComponentsProtection">Arachne/ComponentsProtection</a></h3>
+<p>This package can be used to restrict components to certain actions to avoid <a href="http://www.youtube.com/watch?v=ivDl8g0NEwg&amp;t=57m4s">vulnerability</a> (video in Czech) common to many Nette-based applications. The problem is that you can for example submit an edit form using a different action than <code>actionEdit()</code> - bypassing any security conditions you check in that action.</p>
+<p>Using this addon you can restrict your components to only certain actions using the <code>@Actions</code> annotation. To avoid omitting this annotation by accident it is strictly required for all components.</p>
+<pre><code class="language-php">use Arachne\ComponentsProtection\Rules\Actions;
+
+class ArticlePresenter extends BasePresenter
+{
+    public function actionDefault()
+    {
+        // Using $this-&gt;getComponent('editForm') would cause an exception.
+        // The point is to protect the form from using this action with an editForm-submit
+        // signal which would bypass any privilege checks you might have in actionEdit.
+    }
+
+    public function actionEdit($id)
+    {
+        // Using $this-&gt;getComponent('editForm') will work normally.
+    }
+
+    /**
+     * @Actions("edit")
+     */
+    public function createComponentEditForm()
+    {
+        // This component will be available only for edit action.
+    }
+}</code></pre>
+<h2>Custom Rule Provider</h2>
+<p>If your rules follow some pattern across your application you can implement <code>Arachne\Verifier\RuleProviderInterface</code> to generate the rules automatically according to your conventions instead of repeating similar rule for every action. Alternatively you can write a provider to pull rules from a neon/yaml/whatever file in case you don't like annotations.</p>
+<h2>More information</h2>
+<p>For more information how to use Arachne/Verifier read the <a href="https://github.com/Arachne/Verifier/blob/master/docs/index.md#usage">documentation</a>. It covers some advanced cases such as the <code>@Either</code> and <code>@All</code> rules or the verified properties feature which is very useful for complex Nette components.</p>
+<p><strong>Capabilities of both SecurityVerification and ParameterValidation can be greatly improved</strong> by using <a href="https://github.com/Arachne/EntityLoader">Arachne/EntityLoader</a> as well. I'll go into details in another article.</p>
+
+        <br>
+
+        <div class="container">
+            <div id="disqus_thread"></div>
+
+<script type="text/javascript">
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//pehapkari.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+        </div>
+
+        <br>
+    </div>
+
+            </div>
+        
+        <div id="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-6 mt-3 mt-md-0">
+                <p class="mb-2">Web Péhápkaři.cz pohání <a href="https://symfony.com/">Symfony</a> a najdeš ho na <a href="https://github.com/pehapkari/pehapkari.cz">Githubu</a>.</p>
+
+                                            </div>
+
+            <div class="col-12 col-md-6 mt-4 mt-md-0">
+                <ul id="socials" class="pull-right">
+                    <li>
+                        <a href="https://facebook.com/pehapkari">
+                            <em class="fab fa-2x fa-facebook"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://twitter.com/pehapkari">
+                            <em class="fab fa-2x fa-twitter"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/friends-of-php-prague/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Praha</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/Pehapkari-Brno/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Brno</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://github.com/pehapkari">
+                            <em class="fab fa-2x fa-github"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ">
+                            <em class="fab fa-2x fa-slack"></em>
+                        </a>
+                        <p>
+                            <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ/">
+                                <span class="hidden-sm-down">Pozvi se</span>
+                                <span class="hidden-md-up">Pozvi</span>
+                            </a>
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="footer_body">
+            <div class="row">
+                <div class="col-6 col-md-4 mb-4 mb-md-0">
+                    <h3>O nás</h3>
+
+                    <ul class="bottom_menu">
+                        <li>
+                            <a href="/kontakt">Kontakt</a>
+                        </li>
+
+                        <li>
+                            <a href="/for-speakers">Pro speakry</a>
+                        </li>
+
+                        <li>
+                            <a href="https://github.com/pehapkari/pehapkari.cz/tree/master/public/assets/pehapkari_logo">Logo</a>
+                        </li>
+
+                        <li>
+                            <a href="/rss.xml">RSS blogu</a>
+                        </li>
+
+                        <li>
+                            <a href="http://bit.ly/pehapkari-newsletter">Sleduj Newsletter</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/build/js/app.js"></script>
+
+<script
+    src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
+<script>
+    $('document').ready(function() {
+        var typed = new Typed('#typed',{
+            stringsElement: '#typed-strings',
+            typeSpeed: 50,
+            backDelay: 1400,
+        });
+    });
+</script>
+
+<script src="/assets/prism/prism.js"></script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-89860072-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-89860072-1');
+</script>
+    </body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="cs">
+    <head>
+        <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="description" content="Otevřené místo pro všechny PHP programátory">
+<meta name="keywords" content="PHP, komunita, programování, srazy, školení, blog, články">
+<meta name="author" content="https://pehapkari.cz">
+<meta name="robots" content="index, follow">
+
+<meta property="og:image" content="/assets/images/meetup.jpg">
+<meta property="fb:pages" content="918297778220033" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<link rel="alternate" type="application/rss+xml" title="Péhápkaři.cz Blog RSS" href="/rss.xml">
+
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap&subset=latin-ext" rel="stylesheet">
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<link href="/favicon.ico" rel="shortcut icon">
+
+<title>
+     Domain-Driven Design, part 2 - Model | Děláš v PHP? Jsi jedním z nás
+</title>
+
+<link rel="stylesheet" href="/build/css/app.css">
+
+<link rel="stylesheet" href="/assets/prism/prism.css">
+<link rel="stylesheet" href="/assets/prism/prism-custom.css">
+
+<link rel="stylesheet" href="https://use.typekit.net/jmg2upk.css">
+
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i|Ubuntu+Mono&amp;subset=latin-ext" rel="stylesheet">
+
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    </head>
+
+    <body id="">
+        <nav id="ph-nav" class="navbar fixed-top navbar-expand navbar-light bg-light ph-nav border-bottom hidden-sm-down">
+    <div class="container">
+        <a class="ph-nav__logo" href="/">
+            <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+            <br>
+            <p>Péhápkaři</p>
+        </a>
+
+        <div id="top-menu-search" class="hidden-md-down">
+            <form method="get" action="https://www.google.com/search" itemprop="potentialAction" itemscope="" itemtype="http://schema.org/SearchAction">
+    <meta itemprop="target" content="https://www.google.com/search?q={q}"/>
+    <input name="sitesearch" value="pehapkari.cz" type="hidden"/>
+    <input itemprop="query-input" type="text" id="search-query" class="form-control" required="required" name="q" placeholder="Napiš co hledáš..." autocomplete="off"/>
+</form>
+        </div>
+
+        <ul class="navbar-nav ml-auto hidden-sm-down" id="menu">
+            <li>
+                <a class="active" href="/blog">
+                    Blog
+                </a>
+            </li>
+            <li>
+                <a class="" href="/prehaj-si-prednasku">
+                    Videa
+                </a>
+            </li>
+            <li class="pr-0">
+                <a class="" href="/kontakt">
+                    Kontakt
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div id="mobile-menu" class="row ml-0 mr-0 text-center hidden-md-up border-bottom">
+    <a href="/" class="ph-nav__logo col-3 ">
+        <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+    </a>
+
+    <a href="/prehaj-si-prednasku" class="col-3 ">
+        Videa
+    </a>
+    <a href="/blog" class="col-3 ">
+        Blog
+    </a>
+</div>
+
+                    <div id="main">
+                
+
+                    <div class="container" id="article">
+        <h1>Domain-Driven Design, part 2 - Model</h1>
+
+        <strong>Svaťa Šimara</strong>
+        &nbsp;
+        <time datetime="2017-12-Sat">
+            16. 12. 2017
+        </time>
+
+        <br>
+
+        <div class="card mt-4 mb-4">
+            <div class="card-body text-bigger">
+                <p>All of us model every day.
+A friend tells us a joke, we imagine the situation and if we model it as is intended, we find the situation funny.
+A customer wants to have a new functionality and while he speaks, we try to imagine what does the customer wants - we model.</p>
+<p>We are going to take a look at what is software modeling, how can we express the model and how can we capture key concepts.</p>
+            </div>
+        </div>
+
+        <h2>Modeling</h2>
+<p>Modeling is a process that aims to capture key concepts of reality and ignores irrelevant details.</p>
+<p><img src="/assets/images/posts/2017/ddd-model/modelling.png" alt="unshaped reality converted to shaped abstract model converted to concrete implementation model" /></p>
+<p>The reality contains everything important, all details, everything we know and much more that is hidden.
+We are not able to describe the whole reality and describing it is not really our goal.</p>
+<p>We can tell stories that cover important concepts of reality.
+We can convert the stories to use cases.
+We can express abstract models with diagrams and images - they are great to explain our abstract model.</p>
+<h3>Validation</h3>
+<p>Once we have the abstract model in our heads and it is also described by documentation and in the diagrams, we should validate it.
+Validation is done by domain experts who have to confirm or refute the abstract model.</p>
+<p><img src="/assets/images/posts/2017/ddd-model/validation.png" alt="reality is modeled by abstract model and abstract model is validated by reality" /></p>
+<p>Validation is usually a continuous process.
+As we deepen our domain knowledge, as we model and sketch the diagrams, experts are validating and correcting the abstract model immediately.</p>
+<h2>How to Get The Right Information</h2>
+<p><strong>Why?</strong> is the most important question.
+We have to ask even the simplest questions.
+The question aims to clear terms, requirements, needs and helps us to avoid concealed assumptions.</p>
+<p>What is it? Whom is it for? We want to know our target group.</p>
+<p>What are performance requirements? It's a pretty big difference if a part of the software is used once in an hour or thousands of times per second.
+High-performance requirements can lead to a model with many trade-offs.</p>
+<p>Asking the right questions is important in order to get the right information so we are able to model correctly.
+Asking the right questions is also the most difficult part of modeling.</p>
+<h2>Shopping Cart Story</h2>
+<p>It doesn't make sense to explain modeling on <em>Foo, Bar, etc...</em>, the Domain-driven design is about the domain.
+So let's tell a story about an e-shop cart.</p>
+<blockquote>
+<p><em>In our e-shop we need a shopping cart.  You know, a normal cart that is everywhere.</em></p>
+</blockquote>
+<p>Ok, that is a good beginning, but can we explain what a cart is to a five old year child?</p>
+<blockquote>
+<p><em>Cart... it is a box where you put products, like a barbie doll you want to buy.
+Sometimes you can also remove any item you don't want to buy anymore because you found something better.
+The cart is not closed, you can always look at items you have inside.
+But unlike in the real world, the e-shop cart can always tell you how much everything costs together.</em></p>
+</blockquote>
+<p>We keep a conversation in the real world, we ask questions and build mental, abstract model.
+The conversation would look really awkward in an article, so we just pretend it happened.</p>
+<h2>Use Cases and Constraints</h2>
+<ul>
+<li>Add the <strong>product</strong> to the <strong>cart</strong>.</li>
+<li>Remove the <strong>product</strong> from the <strong>cart</strong>.</li>
+<li>Show the <strong>cart</strong> detail.</li>
+<li>Calculate the <strong>cart</strong> total <strong>price</strong>.</li>
+<li>Change the <strong>product</strong> amount.</li>
+<li>Once the <strong>item</strong> is in the <strong>cart</strong>, its <strong>price</strong> is fixed.</li>
+</ul>
+<h2>Key Concepts</h2>
+<p>Let's identify concepts, responsibilities and relations.</p>
+<p>The whole story is about a cart, the cart is definitely the central point. The cart is a box that holds items.</p>
+<p>We can see the term product in all use cases, it is something that customers care about, something that they add to the cart.
+But in this story, we do not investigate what the product is, we assume that the product already exists in the system.
+We keep an eye on the cart.</p>
+<p>Once we add a product into the cart, more interesting things happen.
+We start to call the product the item; the item is the product in the cart.
+The product has its price in the cart, and the price is fixed once the product is added to the cart.
+We need to hold price information.
+Since an item is a product in a cart, the fixed price is related to an item.</p>
+<p>This is our abstract model.</p>
+<p><img src="/assets/images/posts/2017/ddd-model/cart_model.png" alt="cart is related to item, item is related to product and price" /></p>
+<h2>TL;DR</h2>
+<p>We always start with an unknown reality and with an unstructured story.
+We have to discover the key concepts, their relations and ignore irrelevant information and details.
+Once we have the abstract model in the head, we can specify it by use cases, diagrams and stories that use ubiquitous language.
+The model should be continuously validated by a domain expert so that we keep the right track.</p>
+<p>Next time we are going to shape the abstract model into the implementation model.</p>
+<h2>References</h2>
+<p>EVANS, Eric. <em>Domain-driven design: tackling complexity in the heart of software</em>. Boston: Addison-Wesley, 2004. ISBN 0-321-12521-5.</p>
+<h2>Contact</h2>
+<p>Are you designing architecture and like DDD approach? Hire me, I can help you - <a href="http://svatasimara.cz/">svatasimara.cz</a></p>
+
+        <br>
+
+        <div class="container">
+            <div id="disqus_thread"></div>
+
+<script type="text/javascript">
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//pehapkari.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+        </div>
+
+        <br>
+    </div>
+
+            </div>
+        
+        <div id="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-6 mt-3 mt-md-0">
+                <p class="mb-2">Web Péhápkaři.cz pohání <a href="https://symfony.com/">Symfony</a> a najdeš ho na <a href="https://github.com/pehapkari/pehapkari.cz">Githubu</a>.</p>
+
+                                            </div>
+
+            <div class="col-12 col-md-6 mt-4 mt-md-0">
+                <ul id="socials" class="pull-right">
+                    <li>
+                        <a href="https://facebook.com/pehapkari">
+                            <em class="fab fa-2x fa-facebook"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://twitter.com/pehapkari">
+                            <em class="fab fa-2x fa-twitter"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/friends-of-php-prague/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Praha</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/Pehapkari-Brno/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Brno</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://github.com/pehapkari">
+                            <em class="fab fa-2x fa-github"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ">
+                            <em class="fab fa-2x fa-slack"></em>
+                        </a>
+                        <p>
+                            <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ/">
+                                <span class="hidden-sm-down">Pozvi se</span>
+                                <span class="hidden-md-up">Pozvi</span>
+                            </a>
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="footer_body">
+            <div class="row">
+                <div class="col-6 col-md-4 mb-4 mb-md-0">
+                    <h3>O nás</h3>
+
+                    <ul class="bottom_menu">
+                        <li>
+                            <a href="/kontakt">Kontakt</a>
+                        </li>
+
+                        <li>
+                            <a href="/for-speakers">Pro speakry</a>
+                        </li>
+
+                        <li>
+                            <a href="https://github.com/pehapkari/pehapkari.cz/tree/master/public/assets/pehapkari_logo">Logo</a>
+                        </li>
+
+                        <li>
+                            <a href="/rss.xml">RSS blogu</a>
+                        </li>
+
+                        <li>
+                            <a href="http://bit.ly/pehapkari-newsletter">Sleduj Newsletter</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/build/js/app.js"></script>
+
+<script
+    src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
+<script>
+    $('document').ready(function() {
+        var typed = new Typed('#typed',{
+            stringsElement: '#typed-strings',
+            typeSpeed: 50,
+            backDelay: 1400,
+        });
+    });
+</script>
+
+<script src="/assets/prism/prism.js"></script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-89860072-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-89860072-1');
+</script>
+    </body>
+</html>

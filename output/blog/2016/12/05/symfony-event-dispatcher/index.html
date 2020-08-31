@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="cs">
+    <head>
+        <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="description" content="Otevřené místo pro všechny PHP programátory">
+<meta name="keywords" content="PHP, komunita, programování, srazy, školení, blog, články">
+<meta name="author" content="https://pehapkari.cz">
+<meta name="robots" content="index, follow">
+
+<meta property="og:image" content="/assets/images/meetup.jpg">
+<meta property="fb:pages" content="918297778220033" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<link rel="alternate" type="application/rss+xml" title="Péhápkaři.cz Blog RSS" href="/rss.xml">
+
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap&subset=latin-ext" rel="stylesheet">
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<link href="/favicon.ico" rel="shortcut icon">
+
+<title>
+     Event Dispatcher from the Scratch | Děláš v PHP? Jsi jedním z nás
+</title>
+
+<link rel="stylesheet" href="/build/css/app.css">
+
+<link rel="stylesheet" href="/assets/prism/prism.css">
+<link rel="stylesheet" href="/assets/prism/prism-custom.css">
+
+<link rel="stylesheet" href="https://use.typekit.net/jmg2upk.css">
+
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i|Ubuntu+Mono&amp;subset=latin-ext" rel="stylesheet">
+
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    </head>
+
+    <body id="">
+        <nav id="ph-nav" class="navbar fixed-top navbar-expand navbar-light bg-light ph-nav border-bottom hidden-sm-down">
+    <div class="container">
+        <a class="ph-nav__logo" href="/">
+            <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+            <br>
+            <p>Péhápkaři</p>
+        </a>
+
+        <div id="top-menu-search" class="hidden-md-down">
+            <form method="get" action="https://www.google.com/search" itemprop="potentialAction" itemscope="" itemtype="http://schema.org/SearchAction">
+    <meta itemprop="target" content="https://www.google.com/search?q={q}"/>
+    <input name="sitesearch" value="pehapkari.cz" type="hidden"/>
+    <input itemprop="query-input" type="text" id="search-query" class="form-control" required="required" name="q" placeholder="Napiš co hledáš..." autocomplete="off"/>
+</form>
+        </div>
+
+        <ul class="navbar-nav ml-auto hidden-sm-down" id="menu">
+            <li>
+                <a class="active" href="/blog">
+                    Blog
+                </a>
+            </li>
+            <li>
+                <a class="" href="/prehaj-si-prednasku">
+                    Videa
+                </a>
+            </li>
+            <li class="pr-0">
+                <a class="" href="/kontakt">
+                    Kontakt
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div id="mobile-menu" class="row ml-0 mr-0 text-center hidden-md-up border-bottom">
+    <a href="/" class="ph-nav__logo col-3 ">
+        <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+    </a>
+
+    <a href="/prehaj-si-prednasku" class="col-3 ">
+        Videa
+    </a>
+    <a href="/blog" class="col-3 ">
+        Blog
+    </a>
+</div>
+
+                    <div id="main">
+                
+
+                    <div class="container" id="article">
+        <h1>Event Dispatcher from the Scratch</h1>
+
+        <strong>Tomáš Votruba</strong>
+        &nbsp;
+        <time datetime="2016-12-Mon">
+            5. 12. 2016
+        </time>
+
+        <br>
+
+        <div class="card mt-4 mb-4">
+            <div class="card-body text-bigger">
+                <p>Today we will look at first Symfony component - Event Dispatcher. Why should you start with it? It gives you flexibility, it is easy to understand and it helps you to write decoupled code.</p>
+            </div>
+        </div>
+
+        <h2>Main feature of Event Dispatcher</h2>
+<ul>
+<li><strong>Extend application</strong> in some place <strong>without putting any code right there</strong>.</li>
+</ul>
+<p>This way you can extend 3rd party packages without rewriting them. And also allow other users to extend your code without even touching it.</p>
+<p>Not sure how that looks? You will - in the end of this article.</p>
+<h3>Event Dispatcher</h3>
+<p><strong>This is the brain</strong>. It stores all subscribers and calls events when you need to.</p>
+<h3>Event</h3>
+<p><strong>This is name of a place</strong>. When something has happened in application: <em>order is sent</em>,
+or <em>user is deleted</em>.</p>
+<h3>Event Subscriber</h3>
+<p>This is <strong>the action that happens when</strong> we come to some place. When order is sent (= Event), <em>send me a confirmation sms</em> (= Event Subscriber). And <em>check that all the ordered products are on stock</em>. This means, that <strong>1 event can invoke MORE Event Subscribers</strong>.</p>
+<h2>Create First Subscriber in 3 Steps</h2>
+<h3>1. Install via Composer</h3>
+<pre><code class="language-bash">composer require symfony/event-dispatcher</code></pre>
+<h3>2. Create Event Dispatcher</h3>
+<pre><code class="language-php">// index.php
+require_once __DIR__ . '/vendor/autoload.php';
+
+// 1. create the Dispatcher
+$eventDispatcher = new Symfony\Component\EventDispatcher\EventDispatcher;
+
+// 2. some event happend, we dispatch it
+$eventDispatcher-&gt;dispatch('youtube.newVideoPublished'); // oh: event is just a string</code></pre>
+<p>Try it:</p>
+<pre><code class="language-bash">php index.php</code></pre>
+<p>Wow! Nothing happened...</p>
+<p>That's ok, because there is no Subscriber. So let's...</p>
+<h3>3. Create and Register Subscriber</h3>
+<pre><code class="language-php">use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+final class NotifyMeOnVideoPublishedEventSubscriber implements EventSubscriberInterface
+{
+    /**
+     * @var bool
+     */
+    public $isUserNotified = false;
+
+    public static function getSubscribedEvents() : array
+    {
+        // in format ['event name' =&gt; 'public function name that will be called']
+        return ['youtube.newVideoPublished' =&gt; 'notifyUserAboutVideo'];
+    }
+
+    public function notifyUserAboutVideo()
+    {
+        // some logic to send notification
+        $this-&gt;isUserNotified = true;
+    }
+}</code></pre>
+<p>Let the Dispatcher know about the Subscriber.</p>
+<pre><code class="language-php">$eventDispatcher = new Symfony\Component\EventDispatcher\EventDispatcher;
+$eventSubscriber = new NotifyMeOnVideoPublishedEventSubscriber;
+$eventDispatcher-&gt;addSubscriber($eventSubscriber);
+
+// nothing happened, default value
+var_dump($eventSubscriber-&gt;isUserNotified);
+
+// this calls our Subscriber
+$eventDispatcher-&gt;dispatch('youtube.newVideoPublished');
+
+// now it's changed
+var_dump($eventSubscriber-&gt;isUserNotified);</code></pre>
+<p>Run the code again from command line:</p>
+<pre><code class="language-php">$ php index.php
+int(0)
+int(1)</code></pre>
+<p>And now you understand EventDispatcher. At least for ~60 % cases.</p>
+<hr />
+<p>Still on? Let's get advanced.</p>
+<p>What if we need to get the name of the Youtuber into the Subscriber?</p>
+<h2>Event Objects to the Rescue!</h2>
+<p>The Event objects are basically <a href="http://richardmiller.co.uk/2014/11/06/value-objects/">Value Objects</a>. Pass a value in constructor and get it with getter.</p>
+<h3>1. Create an Event Object</h3>
+<pre><code class="language-php">use Symfony\Component\EventDispatcher\Event;
+
+final class YoutuberNameEvent extends Event
+{
+    /**
+     * @var string
+     */
+    private $youtuberName;
+
+    public function __construct(string $youtuberName)
+    {
+        $this-&gt;youtuberName = $youtuberName;
+    }
+
+    public function getYoutuberName() : string
+    {
+        return $this-&gt;youtuberName;
+    }
+}</code></pre>
+<h3>2. Use Event Object in Event Subscriber</h3>
+<pre><code class="language-php">use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+
+final class NotifyMeOnVideoPublishedEventSubscriber implements EventSubscriberInterface
+{
+    public static function getSubscribedEvents() : array
+    {
+        return ['youtube.newVideoPublished' =&gt; 'notifyUserAboutVideo'];
+    }
+
+    // Event Object is passed as method argument
+    public function notifyUserAboutVideo(YoutuberNameEvent $youtuberNameEvent)
+    {
+        var_dump($youtuberNameEvent-&gt;getYoutuberName());
+    }
+}</code></pre>
+<h3>3. Create an Object and Dispatch With It</h3>
+<pre><code class="language-php">$youtuberNameEvent = new YoutuberNameEvent('Jirka Král');
+$eventDispatcher-&gt;dispatch('youtube.newVideoPublished', $youtuberNameEvent);</code></pre>
+<p>And here is the result:</p>
+<pre><code class="language-php">$ php index.php
+string('Jirka Král')</code></pre>
+<h2>We Are 1 Step Further Now</h2>
+<p>You can now:</p>
+<ul>
+<li>understand basic Event workflow</li>
+<li>know what EventDispatcher and EventSubscriber are for</li>
+<li>and know how to pass parameters via Event object</li>
+</ul>
+<h3>Where to go next?</h3>
+<p>Still hungry for knowledge? Go check <a href="http://symfony.com/doc/current/components/event_dispatcher.html">Symfony documentation</a> then.</p>
+<p>But remember: <strong>practise is the best teacher</strong>.</p>
+
+        <br>
+
+        <div class="container">
+            <div id="disqus_thread"></div>
+
+<script type="text/javascript">
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//pehapkari.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+        </div>
+
+        <br>
+    </div>
+
+            </div>
+        
+        <div id="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-6 mt-3 mt-md-0">
+                <p class="mb-2">Web Péhápkaři.cz pohání <a href="https://symfony.com/">Symfony</a> a najdeš ho na <a href="https://github.com/pehapkari/pehapkari.cz">Githubu</a>.</p>
+
+                                            </div>
+
+            <div class="col-12 col-md-6 mt-4 mt-md-0">
+                <ul id="socials" class="pull-right">
+                    <li>
+                        <a href="https://facebook.com/pehapkari">
+                            <em class="fab fa-2x fa-facebook"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://twitter.com/pehapkari">
+                            <em class="fab fa-2x fa-twitter"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/friends-of-php-prague/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Praha</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/Pehapkari-Brno/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Brno</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://github.com/pehapkari">
+                            <em class="fab fa-2x fa-github"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ">
+                            <em class="fab fa-2x fa-slack"></em>
+                        </a>
+                        <p>
+                            <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ/">
+                                <span class="hidden-sm-down">Pozvi se</span>
+                                <span class="hidden-md-up">Pozvi</span>
+                            </a>
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="footer_body">
+            <div class="row">
+                <div class="col-6 col-md-4 mb-4 mb-md-0">
+                    <h3>O nás</h3>
+
+                    <ul class="bottom_menu">
+                        <li>
+                            <a href="/kontakt">Kontakt</a>
+                        </li>
+
+                        <li>
+                            <a href="/for-speakers">Pro speakry</a>
+                        </li>
+
+                        <li>
+                            <a href="https://github.com/pehapkari/pehapkari.cz/tree/master/public/assets/pehapkari_logo">Logo</a>
+                        </li>
+
+                        <li>
+                            <a href="/rss.xml">RSS blogu</a>
+                        </li>
+
+                        <li>
+                            <a href="http://bit.ly/pehapkari-newsletter">Sleduj Newsletter</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/build/js/app.js"></script>
+
+<script
+    src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
+<script>
+    $('document').ready(function() {
+        var typed = new Typed('#typed',{
+            stringsElement: '#typed-strings',
+            typeSpeed: 50,
+            backDelay: 1400,
+        });
+    });
+</script>
+
+<script src="/assets/prism/prism.js"></script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-89860072-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-89860072-1');
+</script>
+    </body>
+</html>

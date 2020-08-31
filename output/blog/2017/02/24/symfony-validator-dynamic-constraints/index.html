@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="cs">
+    <head>
+        <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="description" content="Otevřené místo pro všechny PHP programátory">
+<meta name="keywords" content="PHP, komunita, programování, srazy, školení, blog, články">
+<meta name="author" content="https://pehapkari.cz">
+<meta name="robots" content="index, follow">
+
+<meta property="og:image" content="/assets/images/meetup.jpg">
+<meta property="fb:pages" content="918297778220033" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<link rel="alternate" type="application/rss+xml" title="Péhápkaři.cz Blog RSS" href="/rss.xml">
+
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap&subset=latin-ext" rel="stylesheet">
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<link href="/favicon.ico" rel="shortcut icon">
+
+<title>
+     How to use Dynamic Constraints with Symfony/Validator | Děláš v PHP? Jsi jedním z nás
+</title>
+
+<link rel="stylesheet" href="/build/css/app.css">
+
+<link rel="stylesheet" href="/assets/prism/prism.css">
+<link rel="stylesheet" href="/assets/prism/prism-custom.css">
+
+<link rel="stylesheet" href="https://use.typekit.net/jmg2upk.css">
+
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i|Ubuntu+Mono&amp;subset=latin-ext" rel="stylesheet">
+
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    </head>
+
+    <body id="">
+        <nav id="ph-nav" class="navbar fixed-top navbar-expand navbar-light bg-light ph-nav border-bottom hidden-sm-down">
+    <div class="container">
+        <a class="ph-nav__logo" href="/">
+            <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+            <br>
+            <p>Péhápkaři</p>
+        </a>
+
+        <div id="top-menu-search" class="hidden-md-down">
+            <form method="get" action="https://www.google.com/search" itemprop="potentialAction" itemscope="" itemtype="http://schema.org/SearchAction">
+    <meta itemprop="target" content="https://www.google.com/search?q={q}"/>
+    <input name="sitesearch" value="pehapkari.cz" type="hidden"/>
+    <input itemprop="query-input" type="text" id="search-query" class="form-control" required="required" name="q" placeholder="Napiš co hledáš..." autocomplete="off"/>
+</form>
+        </div>
+
+        <ul class="navbar-nav ml-auto hidden-sm-down" id="menu">
+            <li>
+                <a class="active" href="/blog">
+                    Blog
+                </a>
+            </li>
+            <li>
+                <a class="" href="/prehaj-si-prednasku">
+                    Videa
+                </a>
+            </li>
+            <li class="pr-0">
+                <a class="" href="/kontakt">
+                    Kontakt
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div id="mobile-menu" class="row ml-0 mr-0 text-center hidden-md-up border-bottom">
+    <a href="/" class="ph-nav__logo col-3 ">
+        <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+    </a>
+
+    <a href="/prehaj-si-prednasku" class="col-3 ">
+        Videa
+    </a>
+    <a href="/blog" class="col-3 ">
+        Blog
+    </a>
+</div>
+
+                    <div id="main">
+                
+
+                    <div class="container" id="article">
+        <h1>How to use Dynamic Constraints with Symfony/Validator</h1>
+
+        <strong>Jáchym Toušek</strong>
+        &nbsp;
+        <time datetime="2017-02-Fri">
+            24. 2. 2017
+        </time>
+
+        <br>
+
+        <div class="card mt-4 mb-4">
+            <div class="card-body text-bigger">
+                <p>Some edge-cases with Symfony Validator might force you to create a constraint dynamically during the validation. This article will show you how to do it and how to solve error mapping for such constraints.</p>
+            </div>
+        </div>
+
+        <h3>Example Use Case</h3>
+<p>You have an Address entity with a country and a zipcode. There is a <a href="https://github.com/Soullivaneuh/IsoCodesValidator/blob/master/src/Constraints/ZipCode.php">ZipCodeConstraint constraint</a> available but requires you to specify the country in the options. But you cannot do that in an annotation because the country is present in another field of the Address entity.</p>
+<pre><code class="language-php">use SLLH\IsoCodesValidator\Constraints\ZipCodeConstraint;
+use Symfony\Component\Validator\Constraints as Assert;
+
+class Address
+{
+    // street, city, etc.
+
+    /**
+     * @var string
+     * @Assert\NotBlank()
+     * @Assert\Country()
+     */
+    protected $country;
+
+    /**
+     * @todo Validate this field based on the country specified in $this-&gt;country.
+     * @var string
+     * @Assert\NotBlank()
+     * @ZipCodeConstraint(country = "???")
+     */
+    protected $zipcode;
+
+    // getters and setters
+}</code></pre>
+<h3>Creating the constraint dynamically</h3>
+<p>Well, it's of course impossible to simply fix the code above by replacing the question marks with something. So we need another approach. <strong>The way to go in this case is the Callback constraint.</strong></p>
+<pre><code class="language-php">use SLLH\IsoCodesValidator\Constraints\ZipCodeConstraint;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+
+class Address
+{
+    // same as above
+
+    /**
+     * @Assert\Callback()
+     */
+    public function validateZipcode(ExecutionContextInterface $context)
+    {
+        $constraint = new ZipCodeConstraint(['country' =&gt; $this-&gt;country]);
+        $violations = $context-&gt;getValidator()-&gt;validate($this-&gt;zipcode, $constraint);
+
+        foreach ($violations as $violation) {
+            $context-&gt;getViolations()-&gt;add($violation);
+        }
+    }
+}</code></pre>
+<h3>Correct violation context</h3>
+<p>Now this is almost correct except for one flaw. If the zipcode is not valid, the violation is not attached to the zipcode field but to the Address class instead. <strong>Fortunately there is a way to solve this problem as well using ContextualValidator.</strong></p>
+<pre><code class="language-php">use SLLH\IsoCodesValidator\Constraints\ZipCodeConstraint;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+
+class Address
+{
+    // same as above
+
+    /**
+     * @Assert\Callback()
+     */
+    public function validateZipcode(ExecutionContextInterface $context)
+    {
+        $constraint = new ZipCodeConstraint(['country' =&gt; $this-&gt;country]);
+        $context
+            -&gt;getValidator()
+            -&gt;inContext($context)
+            -&gt;atPath('zipcode')
+            -&gt;validate($this-&gt;zipcode, $constraint, [Constraint::DEFAULT_GROUP]);
+    }
+}</code></pre>
+<p>And that's it! <strong>The violation will be added to the field directly in the intended context</strong> so there is no need to duplicate it.</p>
+<p>This approach should solve most of the advanced use-cases you might have. Along with the tips from my previous articles it makes Symfony/Validator a really powerful validation tool.</p>
+<h3>Usage with Nette Framework</h3>
+<p>If you want to use the Symfony/Validator component in your Nette application, you will need <a href="https://github.com/Kdyby/Validator">Kdyby/Validator</a>.</p>
+
+        <br>
+
+        <div class="container">
+            <div id="disqus_thread"></div>
+
+<script type="text/javascript">
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//pehapkari.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+        </div>
+
+        <br>
+    </div>
+
+            </div>
+        
+        <div id="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-6 mt-3 mt-md-0">
+                <p class="mb-2">Web Péhápkaři.cz pohání <a href="https://symfony.com/">Symfony</a> a najdeš ho na <a href="https://github.com/pehapkari/pehapkari.cz">Githubu</a>.</p>
+
+                                            </div>
+
+            <div class="col-12 col-md-6 mt-4 mt-md-0">
+                <ul id="socials" class="pull-right">
+                    <li>
+                        <a href="https://facebook.com/pehapkari">
+                            <em class="fab fa-2x fa-facebook"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://twitter.com/pehapkari">
+                            <em class="fab fa-2x fa-twitter"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/friends-of-php-prague/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Praha</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/Pehapkari-Brno/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Brno</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://github.com/pehapkari">
+                            <em class="fab fa-2x fa-github"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ">
+                            <em class="fab fa-2x fa-slack"></em>
+                        </a>
+                        <p>
+                            <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ/">
+                                <span class="hidden-sm-down">Pozvi se</span>
+                                <span class="hidden-md-up">Pozvi</span>
+                            </a>
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="footer_body">
+            <div class="row">
+                <div class="col-6 col-md-4 mb-4 mb-md-0">
+                    <h3>O nás</h3>
+
+                    <ul class="bottom_menu">
+                        <li>
+                            <a href="/kontakt">Kontakt</a>
+                        </li>
+
+                        <li>
+                            <a href="/for-speakers">Pro speakry</a>
+                        </li>
+
+                        <li>
+                            <a href="https://github.com/pehapkari/pehapkari.cz/tree/master/public/assets/pehapkari_logo">Logo</a>
+                        </li>
+
+                        <li>
+                            <a href="/rss.xml">RSS blogu</a>
+                        </li>
+
+                        <li>
+                            <a href="http://bit.ly/pehapkari-newsletter">Sleduj Newsletter</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/build/js/app.js"></script>
+
+<script
+    src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
+<script>
+    $('document').ready(function() {
+        var typed = new Typed('#typed',{
+            stringsElement: '#typed-strings',
+            typeSpeed: 50,
+            backDelay: 1400,
+        });
+    });
+</script>
+
+<script src="/assets/prism/prism.js"></script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-89860072-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-89860072-1');
+</script>
+    </body>
+</html>

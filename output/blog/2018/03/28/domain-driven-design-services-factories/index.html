@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="cs">
+    <head>
+        <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="description" content="Otevřené místo pro všechny PHP programátory">
+<meta name="keywords" content="PHP, komunita, programování, srazy, školení, blog, články">
+<meta name="author" content="https://pehapkari.cz">
+<meta name="robots" content="index, follow">
+
+<meta property="og:image" content="/assets/images/meetup.jpg">
+<meta property="fb:pages" content="918297778220033" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<link rel="alternate" type="application/rss+xml" title="Péhápkaři.cz Blog RSS" href="/rss.xml">
+
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap&subset=latin-ext" rel="stylesheet">
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<link href="/favicon.ico" rel="shortcut icon">
+
+<title>
+     Domain-Driven Design, part 8 - Services and Factories | Děláš v PHP? Jsi jedním z nás
+</title>
+
+<link rel="stylesheet" href="/build/css/app.css">
+
+<link rel="stylesheet" href="/assets/prism/prism.css">
+<link rel="stylesheet" href="/assets/prism/prism-custom.css">
+
+<link rel="stylesheet" href="https://use.typekit.net/jmg2upk.css">
+
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i|Ubuntu+Mono&amp;subset=latin-ext" rel="stylesheet">
+
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    </head>
+
+    <body id="">
+        <nav id="ph-nav" class="navbar fixed-top navbar-expand navbar-light bg-light ph-nav border-bottom hidden-sm-down">
+    <div class="container">
+        <a class="ph-nav__logo" href="/">
+            <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+            <br>
+            <p>Péhápkaři</p>
+        </a>
+
+        <div id="top-menu-search" class="hidden-md-down">
+            <form method="get" action="https://www.google.com/search" itemprop="potentialAction" itemscope="" itemtype="http://schema.org/SearchAction">
+    <meta itemprop="target" content="https://www.google.com/search?q={q}"/>
+    <input name="sitesearch" value="pehapkari.cz" type="hidden"/>
+    <input itemprop="query-input" type="text" id="search-query" class="form-control" required="required" name="q" placeholder="Napiš co hledáš..." autocomplete="off"/>
+</form>
+        </div>
+
+        <ul class="navbar-nav ml-auto hidden-sm-down" id="menu">
+            <li>
+                <a class="active" href="/blog">
+                    Blog
+                </a>
+            </li>
+            <li>
+                <a class="" href="/prehaj-si-prednasku">
+                    Videa
+                </a>
+            </li>
+            <li class="pr-0">
+                <a class="" href="/kontakt">
+                    Kontakt
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div id="mobile-menu" class="row ml-0 mr-0 text-center hidden-md-up border-bottom">
+    <a href="/" class="ph-nav__logo col-3 ">
+        <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+    </a>
+
+    <a href="/prehaj-si-prednasku" class="col-3 ">
+        Videa
+    </a>
+    <a href="/blog" class="col-3 ">
+        Blog
+    </a>
+</div>
+
+                    <div id="main">
+                
+
+                    <div class="container" id="article">
+        <h1>Domain-Driven Design, part 8 - Services and Factories</h1>
+
+        <strong>Svaťa Šimara</strong>
+        &nbsp;
+        <time datetime="2018-03-Wed">
+            28. 3. 2018
+        </time>
+
+        <br>
+
+        <div class="card mt-4 mb-4">
+            <div class="card-body text-bigger">
+                <p>This article is a reaction to readers’ confusion about services.
+We'll cover a domain service and domain factory in this article and when to use them and when not to.</p>
+            </div>
+        </div>
+
+        <p>Domain-driven design is about the domain.
+Domain services and domain factories do not exist in the domain.
+In general we shouldn't use them.</p>
+<p>They are artificial constructions and this causes a lot of problems with code understanding, maintainability and also divergence between the domain, the model and the code.</p>
+<h2>Domain Service</h2>
+<p>We encapsulate domain use cases into domain aggregates, entities and value objects.
+This works well for many use cases.
+But when a single use case involves multiple aggregates, we have a problem.</p>
+<p>It may happen that use case doesn't naturally belong to any aggregate.
+And it is awkward when one aggregate contains the domain logic of another aggregate.</p>
+<p>A domain service is a stateless service object.
+It encapsulates a single use case that involves more aggregates.</p>
+<h3>Cart and Order Example</h3>
+<p>We have an e-shop that contains shopping carts and orders.
+The order is a pretty complicated aggregate and so is the cart.</p>
+<p>The complicated use case is <em>to order the cart</em>.
+This use case involves at least two aggregates - cart and order.
+It doesn't belong to the cart - the cart is a shopping box not responsible for the order.
+It doesn't belong to the order - order doesn't care about source of its items.
+But conversion is still a single use case.</p>
+<p>The solution is a domain service that does exactly this complicated use case.</p>
+<p><img src="/assets/images/posts/2018/ddd-services-factories/service.png" alt="service has cart as an input and order as an outpu" /></p>
+<h3>Don't use Domain Services</h3>
+<p>Do not use domain services too much.
+We usually end up with an anemic model with behavior in services.
+And that is not the object-oriented programming.</p>
+<h3>Application Service</h3>
+<p>Do not mix domain services with application services you may know.
+Application services, as far as I know, are something from the application architecture.
+But application services are in a different layer - application.</p>
+<p>I think that common confusion comes from the fact that both types work with domain objects.</p>
+<p>Remember that domain service has no state; it doesn't contain any private property.
+Domain services are rare and contain complicated cross-aggregate domain logic.</p>
+<h2>Domain Factory</h2>
+<p>Have you ever seen how the ship engine is made?
+You need a whole factory for it.</p>
+<p>Factory is an object that produces complicated aggregates or sometimes also entities and value objects.
+It can be used in several scenarios.</p>
+<p>If the object construction is complicated, it is fine to move the construction process into a separated factory instead of using complicated constructor.</p>
+<p><img src="/assets/images/posts/2018/ddd-services-factories/factory-constructor.png" alt="data goes into a factory and it creates an order" /></p>
+<p>If we have a custom repository, we can delegate the object reconstruction responsibility into the factory.
+We get JSON data from an API for example, we pass them into a factory and it returns a domain object.</p>
+<p><img src="/assets/images/posts/2018/ddd-services-factories/factory-json.png" alt="api order repository gets data from api adapter, passes them into api order factory and factory returns order" /></p>
+<p>Sometimes the object construction needs some information that we do not have, like the information from an external system.
+The factory can be responsible for getting the needed information and constructing the object.
+In the following example, we get the order number from an external sequence.</p>
+<p><img src="/assets/images/posts/2018/ddd-services-factories/factory-sequence.png" alt="data goes into a factory and it creates an order" /></p>
+<h3>Don't use Domain Factories</h3>
+<p>Factories are heavily overused.
+What we usually need is a constructor.</p>
+<h3>Factory Pattern</h3>
+<p>An argument that new objects should be created only in factories is odd.
+A typical use of the factory or the abstract factory pattern is to inject them so we are able to change the implementation.
+This scenario is great for UI where we have no idea whether the operating system is linux, windows or any other.</p>
+<p>But this is not true in the domain layer.
+In the domain layer we know exactly what implementation we are using, it is the domain object.
+Not any abstract object, the exact domain object.
+And the only reason for changing the domain object is a domain change.
+But if the domain changes, no factory can help us, we have to refactor the code.</p>
+<h2>TL;DR</h2>
+<p>Do not use them.</p>
+<h2>References</h2>
+<p>EVANS, Eric.
+<em>Domain-driven design: tackling complexity in the heart of software</em>.
+Boston: Addison-Wesley, 2004.
+ISBN 0-321-12521-5.</p>
+<h2>Contact</h2>
+<p>Are you designing architecture and like DDD approach? Hire me, I can help you - <a href="http://svatasimara.cz/">svatasimara.cz</a></p>
+
+        <br>
+
+        <div class="container">
+            <div id="disqus_thread"></div>
+
+<script type="text/javascript">
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//pehapkari.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+        </div>
+
+        <br>
+    </div>
+
+            </div>
+        
+        <div id="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-6 mt-3 mt-md-0">
+                <p class="mb-2">Web Péhápkaři.cz pohání <a href="https://symfony.com/">Symfony</a> a najdeš ho na <a href="https://github.com/pehapkari/pehapkari.cz">Githubu</a>.</p>
+
+                                            </div>
+
+            <div class="col-12 col-md-6 mt-4 mt-md-0">
+                <ul id="socials" class="pull-right">
+                    <li>
+                        <a href="https://facebook.com/pehapkari">
+                            <em class="fab fa-2x fa-facebook"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://twitter.com/pehapkari">
+                            <em class="fab fa-2x fa-twitter"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/friends-of-php-prague/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Praha</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/Pehapkari-Brno/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Brno</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://github.com/pehapkari">
+                            <em class="fab fa-2x fa-github"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ">
+                            <em class="fab fa-2x fa-slack"></em>
+                        </a>
+                        <p>
+                            <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ/">
+                                <span class="hidden-sm-down">Pozvi se</span>
+                                <span class="hidden-md-up">Pozvi</span>
+                            </a>
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="footer_body">
+            <div class="row">
+                <div class="col-6 col-md-4 mb-4 mb-md-0">
+                    <h3>O nás</h3>
+
+                    <ul class="bottom_menu">
+                        <li>
+                            <a href="/kontakt">Kontakt</a>
+                        </li>
+
+                        <li>
+                            <a href="/for-speakers">Pro speakry</a>
+                        </li>
+
+                        <li>
+                            <a href="https://github.com/pehapkari/pehapkari.cz/tree/master/public/assets/pehapkari_logo">Logo</a>
+                        </li>
+
+                        <li>
+                            <a href="/rss.xml">RSS blogu</a>
+                        </li>
+
+                        <li>
+                            <a href="http://bit.ly/pehapkari-newsletter">Sleduj Newsletter</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/build/js/app.js"></script>
+
+<script
+    src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
+<script>
+    $('document').ready(function() {
+        var typed = new Typed('#typed',{
+            stringsElement: '#typed-strings',
+            typeSpeed: 50,
+            backDelay: 1400,
+        });
+    });
+</script>
+
+<script src="/assets/prism/prism.js"></script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-89860072-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-89860072-1');
+</script>
+    </body>
+</html>

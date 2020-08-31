@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="cs">
+    <head>
+        <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="description" content="Otevřené místo pro všechny PHP programátory">
+<meta name="keywords" content="PHP, komunita, programování, srazy, školení, blog, články">
+<meta name="author" content="https://pehapkari.cz">
+<meta name="robots" content="index, follow">
+
+<meta property="og:image" content="/assets/images/meetup.jpg">
+<meta property="fb:pages" content="918297778220033" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<link rel="alternate" type="application/rss+xml" title="Péhápkaři.cz Blog RSS" href="/rss.xml">
+
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap&subset=latin-ext" rel="stylesheet">
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<link href="/favicon.ico" rel="shortcut icon">
+
+<title>
+     Jak snadno a rychle upravovat soubory ve vendoru? | Děláš v PHP? Jsi jedním z nás
+</title>
+
+<link rel="stylesheet" href="/build/css/app.css">
+
+<link rel="stylesheet" href="/assets/prism/prism.css">
+<link rel="stylesheet" href="/assets/prism/prism-custom.css">
+
+<link rel="stylesheet" href="https://use.typekit.net/jmg2upk.css">
+
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i|Ubuntu+Mono&amp;subset=latin-ext" rel="stylesheet">
+
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    </head>
+
+    <body id="">
+        <nav id="ph-nav" class="navbar fixed-top navbar-expand navbar-light bg-light ph-nav border-bottom hidden-sm-down">
+    <div class="container">
+        <a class="ph-nav__logo" href="/">
+            <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+            <br>
+            <p>Péhápkaři</p>
+        </a>
+
+        <div id="top-menu-search" class="hidden-md-down">
+            <form method="get" action="https://www.google.com/search" itemprop="potentialAction" itemscope="" itemtype="http://schema.org/SearchAction">
+    <meta itemprop="target" content="https://www.google.com/search?q={q}"/>
+    <input name="sitesearch" value="pehapkari.cz" type="hidden"/>
+    <input itemprop="query-input" type="text" id="search-query" class="form-control" required="required" name="q" placeholder="Napiš co hledáš..." autocomplete="off"/>
+</form>
+        </div>
+
+        <ul class="navbar-nav ml-auto hidden-sm-down" id="menu">
+            <li>
+                <a class="active" href="/blog">
+                    Blog
+                </a>
+            </li>
+            <li>
+                <a class="" href="/prehaj-si-prednasku">
+                    Videa
+                </a>
+            </li>
+            <li class="pr-0">
+                <a class="" href="/kontakt">
+                    Kontakt
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div id="mobile-menu" class="row ml-0 mr-0 text-center hidden-md-up border-bottom">
+    <a href="/" class="ph-nav__logo col-3 ">
+        <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+    </a>
+
+    <a href="/prehaj-si-prednasku" class="col-3 ">
+        Videa
+    </a>
+    <a href="/blog" class="col-3 ">
+        Blog
+    </a>
+</div>
+
+                    <div id="main">
+                
+
+                    <div class="container" id="article">
+        <h1>Jak snadno a rychle upravovat soubory ve vendoru?</h1>
+
+        <strong>Tomáš Pilař</strong>
+        &nbsp;
+        <time datetime="2017-01-Fri">
+            20. 1. 2017
+        </time>
+
+        <br>
+
+        <div class="card mt-4 mb-4">
+            <div class="card-body text-bigger">
+                <p>Už ses někdy dostal do situace, kdy jsi potřeboval opravit chybu nějaké závislosti ve složce vendor? Jak takovou úpravu sdílet v týmu s ostatními programátory a jak ji udržet v souboru i po spuštění composeru? V tomto článku se dovíš, jak snadno a elegantně se tento problém dá vyřešit během 1 minuty.</p>
+            </div>
+        </div>
+
+        <h2>Chyba je ve vendoru...</h2>
+<p>Občas se může stát, že aplikace po spuštění <code>composer update</code> začne vyhazovat notice, warning nebo dokonce fatal error. Co se stalo? Kde je chyba? Je v mojí aplikaci nebo někde jinde... Po pár minutách až hodinách :) zjistíš, že <strong>chyba není v aplikaci, ale v balíčku</strong>, který se ti právě aktualizoval.</p>
+<p>Jak je možné, že někdo otaguje balíček, který obsahuje takovou chybu? Každy z nás je pouze člověk a i sebelepší programátor se semtam sekne a vytvoří bug, ať už spravuje svůj osobní nebo celosvětově používaný balíček.</p>
+<p>Mně se například po přechodu na PHP7 stalo to, že <a href="https://github.com/doctrine/dbal">Doctrine\DBAL</a> špatně bindoval parametry do dotazů viz. <a href="https://github.com/doctrine/dbal/issues/2261">OCI8 - bindValue overwrite previous values issue</a>. Takže chybu jsme už našli co dál?</p>
+<h2>Jak chybu opravit?</h2>
+<h3>Udělám vlastní fork</h3>
+<p>Tak to je přeci jednoduché! Pošlu <strong>pull-request s opravou</strong> a počkám až to autor spojí. To ale může trvat dny i měsíce a tag v nedohlednu. Mezitím moje <strong>aplikace nepojede</strong>? Dobře, půjdu na to chytřeji...</p>
+<p>Pošlu pull-request a ve své aplikaci nasměruju composer na <strong>svoji forknutou verzi</strong> balíčku a je hotovo. OK, ale než se můj pull-request spojí, tak si musím fork udržovat aktuální...</p>
+<h3>Upravím si soubor lokálně</h3>
+<p>Co to tedy udělat trochu na prasáčka? Otevřu si soubor ve vendoru a <strong>opravím si to sám</strong> a bude - ehm počkat... Složku vendor si automaticky vytváří a spravuje <a href="https://getcomposer.org/">Composer</a> nepřepíše se mi tedy upravený soubor? Přepíše, ale pouze při vydání nové verze balíčku - bezva! Nové verze balíčku nevychází tak často a až vyjde, tak už to bude třeba opravené.</p>
+<p>V tento moment mám vyhráno! Soubor jsem si upravil u sebe - aplikace jede a autorovi balíčku jsem poslal pull-request s opravou. Je čas slavit! Nebo ne?</p>
+<h3>Stačí tohle řešení?</h3>
+<p>To záleží na pár otázkách:</p>
+<ul>
+<li><strong>Pracuji v týmů</strong> a je tedy možné, že stejnou chybu bude mít i kolega?</li>
+<li>Nahrávám aplikaci <strong>na server bez vendoru</strong>, který se následně vytvoří přes <code>composer install</code>?</li>
+</ul>
+<p>Pokud si alespoň na jednu otázku odpovím ano, tak mám opět problém. Společným problémem pro obě otázky je to, že se do vendoru dostane opět ten zabugovaný soubor. Psát kolegům co a kde si mají upravit, aby aplikace fungovala, je velmi nespolehlivé. A jak řešit ten problém na serveru? Oslava se musí odložit... Co s tím?</p>
+<h2>cweagans/composer-patches</h2>
+<p>Naštěstí existuje balíček, který za tebe <strong>vyřeší všechny problémy</strong>, na které jsi zde narazil! <a href="https://github.com/cweagans/composer-patches">cweagans/composer-patches</a> je balíček, který obsahuje nástroje pro patchování souborů (co je to <a href="https://cs.wikipedia.org/wiki/Patch">patch</a>?). Zároveň je natolik chytrý, že poslouchá Composer a při instalaci/aktualizaci balíčku dokáže určit, zda pro daný balíček existuje patch a zda ho má aplikovat nebo ho už aplikoval.</p>
+<p>Jak je to možné? Composer při instalaci balíčků vyvolává události, na které <code>cweagans/composer-patches</code> poslouchá a podle toho reaguje (jak fungují <a href="https://pehapkari.cz/blog/2016/12/05/symfony-event-dispatcher/">události</a>?).</p>
+<p>Dost teorie - jdeme opravit chybu!</p>
+<h2>Oprava chyby ve 4 krocích</h2>
+<h3>1. Nainstalování cweagans/composer-patches</h3>
+<p>Nainstalujeme balíček: <code>cweagans/composer-patches</code>.</p>
+<pre><code class="language-bash">composer require cweagans/composer-patches</code></pre>
+<h3>2. Vytvoření patch souboru</h3>
+<p>Ve vendor složce si najdeš zabugovaný soubor a zkopíruješ ho do toho samého adresáře pouze s jiným názvem souboru (já používám suffix &quot;-fixed&quot; např. <code>BuggedFile-fixed.php</code>). Následně si zkopírovaný soubor otevřeš a opravíš v něm co potřebuješ. Pak už jen zbývá spustit v CLI příkaz pro vygenerování patch souboru:</p>
+<pre><code class="language-bash">diff -u vendor/org/package/src/BuggedFile.php vendor/org/package/src/BuggedFile-fixed.php &gt; patches/bugged-file.patch</code></pre>
+<p>Pokud ti CLI napíše, že příkaz <code>diff</code> nebyl nalezen, tak ho bude potřeba doinstalovat viz postupy níže. A pokud ho máš, můžeš <a href="#3-uprava-patch-souboru-pro-cweagans-composer-patches">přeskočit sem</a>.</p>
+<h4>Linux</h4>
+<p>Je potřeba mít dostupné příkazy <code>diff</code> a <code>patch</code> (dočteš se dál). Oba jsou již v Linuxu dostupné po instalaci, takže na Linuxu jsi v pohodě. :) Pokud je tam náhodou nemáš, tak trochu pogůgli a doinstaluj si je podle své Linuxové distribuce.</p>
+<h4>Windows</h4>
+<p>Zde budeš potřebovat nainstalovat příkazy <code>diff</code> a <code>patch</code> (dočteš se dál). Pro jejich instalaci si stačí nainstalovat <a href="http://cygwin.org/">Cygwin</a>, který portuje základní příkazy z Linuxu do Windows. Součástí instalace je stažení instalačních souborů pro jednotlivé příkazy, takže v průběhu instalace budeš vyzván k volbě mirroru pro stažení dat.</p>
+<ul>
+<li>stáhni <a href="http://cygwin.org/setup-x86.exe">http://cygwin.org/setup-x86.exe</a></li>
+<li>spusť instalaci a pokračuj příkazem &quot;Next&quot;</li>
+<li>zvol libovolný mirror (třeba hned ten první - <a href="http://cygwin.mirror.constant.com">http://cygwin.mirror.constant.com</a>)</li>
+<li>v tabulce &quot;Select Packages&quot; vyhledej slovo &quot;patch&quot; (mělo by se ti zobrazit cca 7 rozkliknutelných položek)</li>
+<li>vyber &quot;Devel&quot;, &quot;Perl&quot;, &quot;Text&quot; a &quot;Utils&quot; a zaškrtni jednotlivé subpoložky</li>
+<li>dokonči instalaci</li>
+</ul>
+<p>Nyní je třeba zaregistrovat cestu k cygwinu do Path. V proměnném prostředí tedy přidáš do Path cestu k bin složce (&quot;C:\cygwin\bin&quot; - výchozí nastavení).</p>
+<h4>Mac</h4>
+<p>I zde budeš potřebovat příkazy <code>diff</code> a <code>patch</code> (dočteš se dál). Podle google bys měl mít příkazy již součástí systému, pokud ne, tak trochu pogůgli a doinstaluj si je podle své verze.</p>
+<h3>3. Úprava patch souboru pro cweagans/composer-patches</h3>
+<p>Otevři si vygenerovaný patch soubor a uprav hlavičku.</p>
+<p>Před:</p>
+<pre><code class="language-text">--- vendor/org/package/src/BuggedFile.php 2016-12-16 18:50:47.642172308 +0100
++++ vendor/org/package/src/BuggedFile-fixed.php 2017-01-13 11:42:07.000000000 +0100</code></pre>
+<p>Po:</p>
+<pre><code class="language-text">--- ../src/BuggedFile.php
++++ ../src/BuggedFile.php</code></pre>
+<p>Na obou řádcích bude cesta ke stejnému (původnímu) souboru. Někomu také funguje, když místo prvního souboru (za <code>---</code>) dá <code>/dev/null</code>.</p>
+<p>Všimni si, že cesta k souborům musí být uvedena <strong>relativně &quot;nad&quot;</strong> složku s balíčkem ve vendoru. Dvě tečky v hlavičce (<code>../</code>) na začátku cest jsou tam tedy právě proto.
+Balíček <code>cweagans/composer-patches</code> totiž interně zkouší volat (dozvíme se díky <code>composer -v install</code>) několik různých variant <code>git apply</code> a <code>patch</code> a první zkouší <code>git apply -p1</code>. Právě <code>-p1</code> znamená, že se otrimuje první <code>../</code> a dále se použije cesta relativně k balíčku.
+Cesty mohou fungovat i bez <code>../</code>, protože v některém z dalších volání se použije <code>-p0</code>, takže je tam tedy přidávat nemusíte. Nicméně ušetříte si pár zavolání.</p>
+<p>Zbytek patche nech tak jak je.</p>
+<h3>4. Nastavení cesty k patch souboru pro cweagans/composer-patches</h3>
+<p><code>cweagans/composer-patches</code> se konfiguruje přes soubor <code>composer.json</code>, takže do něj přidáme sekci <code>patches</code>:</p>
+<pre><code class="language-json">"extra": {
+    "patches": {
+        "bugged/package": {
+            "Patch message": "patches/bugged-file.patch"
+        }
+    }
+}</code></pre>
+<ul>
+<li><code>bugged/package</code> je klasický název balíčku např. <code>nette/di</code>, <code>symfony/console</code> apod., na který chceme patch aplikovat</li>
+<li><code>Patch message</code> je zpráva, která se vypíše v CLI po aplikování patche.</li>
+<li><code>patches/bugged-file.patch</code> je relativní cesta k patch souboru.</li>
+</ul>
+<p>Toto je základní konfigurace pro lokální patch soubory, ale <code>cweagans/composer-patches</code> podporuje celou řadu dalších možností, které najdeš v <a href="https://github.com/cweagans/composer-patches/blob/master/README.md">readme</a>.</p>
+<h3>Test</h3>
+<p>Spustíš příkaz <code>composer install</code> nebo <code>composer update</code> a ve výpisu z composeru uvidíš text:</p>
+<pre><code class="language-text"> - Installing bugged/package
+    Loading from cache
+
+  - Applying patches for bugged/package
+    patches/bugged-file.patch (Patch message)</code></pre>
+<p>V tuto chvíli máš upravený soubor ve vendor složce. <code>cweagans/composer-patches</code> ti na pozadí provedl příkaz <code>patch</code>, který aplikuje vygenerovaný patch. Aplikace jede - jak u tebe, tak u kolegů a i na serveru. <strong>Je čas slavit!</strong></p>
+<h2>Shrnutí</h2>
+<p>V tomto článku jsi našel nástroj, kterým snadno a rychle řešit buggy ve vendoru a zároveň cestu, kterou můžeš opravy sdílet dál (mezi kolegy, na server apod.).</p>
+<p>Zde je shrnutí v bodech, jak postupovat:</p>
+<ol>
+<li><code>composer require cweagans/composer-patches</code></li>
+<li>Zkopírovat soubor s buggem a opravit ho</li>
+<li>Vytvořit patch soubor (příkaz <code>diff</code>)</li>
+<li>Upravit vygenerovaný soubor (opravit hlavičku)</li>
+<li>Přidat cestu k patch souboru do composer.json</li>
+<li>Spustit <code>composer install</code> nebo <code>composer update</code></li>
+<li>Profit!</li>
+</ol>
+<h2>Chci se dozvědět více!</h2>
+<p>Zde jsou materiály, které ti pomohou pochopit, jak takový nástroj funguje a jak ho můžeš použít.</p>
+<ul>
+<li><a href="https://github.com/cweagans/composer-patches">https://github.com/cweagans/composer-patches</a></li>
+<li><a href="https://getcomposer.org/doc/articles/scripts.md">https://getcomposer.org/doc/articles/scripts.md</a></li>
+</ul>
+
+        <br>
+
+        <div class="container">
+            <div id="disqus_thread"></div>
+
+<script type="text/javascript">
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//pehapkari.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+        </div>
+
+        <br>
+    </div>
+
+            </div>
+        
+        <div id="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-6 mt-3 mt-md-0">
+                <p class="mb-2">Web Péhápkaři.cz pohání <a href="https://symfony.com/">Symfony</a> a najdeš ho na <a href="https://github.com/pehapkari/pehapkari.cz">Githubu</a>.</p>
+
+                                            </div>
+
+            <div class="col-12 col-md-6 mt-4 mt-md-0">
+                <ul id="socials" class="pull-right">
+                    <li>
+                        <a href="https://facebook.com/pehapkari">
+                            <em class="fab fa-2x fa-facebook"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://twitter.com/pehapkari">
+                            <em class="fab fa-2x fa-twitter"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/friends-of-php-prague/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Praha</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/Pehapkari-Brno/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Brno</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://github.com/pehapkari">
+                            <em class="fab fa-2x fa-github"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ">
+                            <em class="fab fa-2x fa-slack"></em>
+                        </a>
+                        <p>
+                            <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ/">
+                                <span class="hidden-sm-down">Pozvi se</span>
+                                <span class="hidden-md-up">Pozvi</span>
+                            </a>
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="footer_body">
+            <div class="row">
+                <div class="col-6 col-md-4 mb-4 mb-md-0">
+                    <h3>O nás</h3>
+
+                    <ul class="bottom_menu">
+                        <li>
+                            <a href="/kontakt">Kontakt</a>
+                        </li>
+
+                        <li>
+                            <a href="/for-speakers">Pro speakry</a>
+                        </li>
+
+                        <li>
+                            <a href="https://github.com/pehapkari/pehapkari.cz/tree/master/public/assets/pehapkari_logo">Logo</a>
+                        </li>
+
+                        <li>
+                            <a href="/rss.xml">RSS blogu</a>
+                        </li>
+
+                        <li>
+                            <a href="http://bit.ly/pehapkari-newsletter">Sleduj Newsletter</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/build/js/app.js"></script>
+
+<script
+    src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
+<script>
+    $('document').ready(function() {
+        var typed = new Typed('#typed',{
+            stringsElement: '#typed-strings',
+            typeSpeed: 50,
+            backDelay: 1400,
+        });
+    });
+</script>
+
+<script src="/assets/prism/prism.js"></script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-89860072-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-89860072-1');
+</script>
+    </body>
+</html>

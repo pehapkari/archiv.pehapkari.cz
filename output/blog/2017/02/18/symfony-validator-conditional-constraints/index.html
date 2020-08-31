@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="cs">
+    <head>
+        <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="description" content="Otevřené místo pro všechny PHP programátory">
+<meta name="keywords" content="PHP, komunita, programování, srazy, školení, blog, články">
+<meta name="author" content="https://pehapkari.cz">
+<meta name="robots" content="index, follow">
+
+<meta property="og:image" content="/assets/images/meetup.jpg">
+<meta property="fb:pages" content="918297778220033" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<link rel="alternate" type="application/rss+xml" title="Péhápkaři.cz Blog RSS" href="/rss.xml">
+
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap&subset=latin-ext" rel="stylesheet">
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<link href="/favicon.ico" rel="shortcut icon">
+
+<title>
+     How to use Conditional Constraints with Symfony/Validator | Děláš v PHP? Jsi jedním z nás
+</title>
+
+<link rel="stylesheet" href="/build/css/app.css">
+
+<link rel="stylesheet" href="/assets/prism/prism.css">
+<link rel="stylesheet" href="/assets/prism/prism-custom.css">
+
+<link rel="stylesheet" href="https://use.typekit.net/jmg2upk.css">
+
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i|Ubuntu+Mono&amp;subset=latin-ext" rel="stylesheet">
+
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    </head>
+
+    <body id="">
+        <nav id="ph-nav" class="navbar fixed-top navbar-expand navbar-light bg-light ph-nav border-bottom hidden-sm-down">
+    <div class="container">
+        <a class="ph-nav__logo" href="/">
+            <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+            <br>
+            <p>Péhápkaři</p>
+        </a>
+
+        <div id="top-menu-search" class="hidden-md-down">
+            <form method="get" action="https://www.google.com/search" itemprop="potentialAction" itemscope="" itemtype="http://schema.org/SearchAction">
+    <meta itemprop="target" content="https://www.google.com/search?q={q}"/>
+    <input name="sitesearch" value="pehapkari.cz" type="hidden"/>
+    <input itemprop="query-input" type="text" id="search-query" class="form-control" required="required" name="q" placeholder="Napiš co hledáš..." autocomplete="off"/>
+</form>
+        </div>
+
+        <ul class="navbar-nav ml-auto hidden-sm-down" id="menu">
+            <li>
+                <a class="active" href="/blog">
+                    Blog
+                </a>
+            </li>
+            <li>
+                <a class="" href="/prehaj-si-prednasku">
+                    Videa
+                </a>
+            </li>
+            <li class="pr-0">
+                <a class="" href="/kontakt">
+                    Kontakt
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div id="mobile-menu" class="row ml-0 mr-0 text-center hidden-md-up border-bottom">
+    <a href="/" class="ph-nav__logo col-3 ">
+        <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+    </a>
+
+    <a href="/prehaj-si-prednasku" class="col-3 ">
+        Videa
+    </a>
+    <a href="/blog" class="col-3 ">
+        Blog
+    </a>
+</div>
+
+                    <div id="main">
+                
+
+                    <div class="container" id="article">
+        <h1>How to use Conditional Constraints with Symfony/Validator</h1>
+
+        <strong>Jáchym Toušek</strong>
+        &nbsp;
+        <time datetime="2017-02-Sat">
+            18. 2. 2017
+        </time>
+
+        <br>
+
+        <div class="card mt-4 mb-4">
+            <div class="card-body text-bigger">
+                <p>In some more complicated cases you need to do some validations only if some condition is met. This article covers the tricks you should use including a new feature in Symfony 3.2.</p>
+            </div>
+        </div>
+
+        <h3>Example use case</h3>
+<p>Client can be a person or a company. In a form you need to either fill the comany name or both firstname and lastname.</p>
+<p>The use case is a bit articifial and you might solve this particular situation otherwise. <strong>Conditional validators are often needed in more complex use cases</strong> that I don't want to go into here for simplicity.</p>
+<pre><code class="language-php">use Symfony\Component\Validator\Constraints as Assert;
+
+class Client
+{
+    const TYPE_COMPANY = 1;
+    const TYPE_PERSON = 2;
+
+    /**
+     * @var int
+     * @Assert\NotNull()
+     * @Assert\Choice({ Client::TYPE_COMPANY, CLIENT::TYPE_PERSON })
+     */
+    protected $type;
+
+    /**
+     * @todo Make this nonblank only if $type is TYPE_COMPANY.
+     * @var string
+     * @Assert\NotBlank()
+     */
+    protected $company;
+
+    /**
+     * @todo Make this nonblank if $type is TYPE_PERSON.
+     * @var string
+     */
+    protected $firstname;
+
+    /**
+     * @todo Make this nonblank if $type is TYPE_PERSON.
+     * @var string
+     */
+    protected $firstname;
+
+    // getters and setters
+}</code></pre>
+<h3>Validation groups</h3>
+<p><strong>The solution is to add a validation group to the constraints</strong> and validate only one of them based on the user input.</p>
+<p>Note the groups attribute in each of the <code>NotBlank</code> constraints:</p>
+<pre><code class="language-php">use Symfony\Component\Validator\Constraints as Assert;
+
+class Client
+{
+    const TYPE_COMPANY = 1;
+    const TYPE_PERSON = 2;
+
+    /**
+     * @var int
+     * @Assert\NotNull()
+     * @Assert\Choice({ Client::TYPE_COMPANY, CLIENT::TYPE_PERSON })
+     */
+    protected $type;
+
+    /**
+     * @var string
+     * @Assert\NotBlank(groups = {"company"})
+     */
+    protected $company;
+
+    /**
+     * @var string
+     * @Assert\NotBlank(groups = {"person"})
+     */
+    protected $firstname;
+
+    /**
+     * @var string
+     * @Assert\NotBlank(groups = {"person"})
+     */
+    protected $lastname;
+}</code></pre>
+<h3>Determining the groups to be validated</h3>
+<p>Next you need to determine which group to validate. You can do that manually when calling the validation or you can <strong>use one of the advanced features of Symfony/Validator called <code>GroupSequenceProviderInterface</code></strong>.</p>
+<p>To make the validation truly conditional it's better to let the Client entity determine which groups to validate on it's own. This is done by implementing the <code>getGroupSequence</code> method from the <code>GroupSequenceProviderInterface</code>.</p>
+<pre><code class="language-php">use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\GroupSequenceProviderInterface;
+
+/**
+ * @Assert\GroupSequenceProvider()
+ */
+class Client implements GroupSequenceProviderInterface
+{
+    // same as before
+
+    public function getGroupSequence()
+    {
+        return [
+            // Include the "Client" group to validate the $type property as well.
+            // Note that using the "Default" group here won't work!
+            'Client',
+            // Use either the person or company group based on the selected type.
+            $this-&gt;type === self::TYPE_PERSON ? 'person' : 'company',
+        ];
+    }
+}</code></pre>
+<p>Now you can validate the client entity without specifying any groups. Symfony/Validator will recognize that it implements the GroupSequenceProviderInterface and will call the getGroupSequence() method to determine the validation groups. <strong>The <code>@Assert\GroupSequenceProvider()</code> annotation is necessary as well!</strong></p>
+<h3>Improving the validation result</h3>
+<p>Prior to Symfony 3.2 there was a drawback to this solution. Symfony/Validator runs the groups from a GroupSequence one by one and skips the rest if one fails. It was not possible to get all of the violations at once, just the first group with any failure. With my pull request that was accepted into Symfony 3.2 it is now possible to validate multiple validation groups in each step. If you only use one step you can get all violations at once.</p>
+<pre><code class="language-php">use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\GroupSequenceProviderInterface;
+
+/**
+ * @Assert\GroupSequenceProvider()
+ */
+class Client implements GroupSequenceProviderInterface
+{
+    // same as before
+
+    public function getGroupSequence()
+    {
+        // Return array of the validation steps.
+        return [
+            // If we want to get all violations at once we will return just
+            // one validation step containing an array of the groups to validate.
+            [
+                'Client',
+                $this-&gt;type === self::TYPE_PERSON ? 'person' : 'company',
+            ]
+        ];
+    }
+}</code></pre>
+<p>And that's it! Now Validator will validate the client differently based on the <code>$type</code> property and give you all violations.</p>
+<p><strong>In the end conditional validation is surprisingly easy with Symfony/Validator.</strong> The solution is just a bit hidden and not widely known.</p>
+<h3>Usage with Nette Framework</h3>
+<p>If you want to use the Symfony/Validator component in your Nette application you will need <a href="https://github.com/Kdyby/Validator">Kdyby/Validator</a>.</p>
+
+        <br>
+
+        <div class="container">
+            <div id="disqus_thread"></div>
+
+<script type="text/javascript">
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//pehapkari.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+        </div>
+
+        <br>
+    </div>
+
+            </div>
+        
+        <div id="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-6 mt-3 mt-md-0">
+                <p class="mb-2">Web Péhápkaři.cz pohání <a href="https://symfony.com/">Symfony</a> a najdeš ho na <a href="https://github.com/pehapkari/pehapkari.cz">Githubu</a>.</p>
+
+                                            </div>
+
+            <div class="col-12 col-md-6 mt-4 mt-md-0">
+                <ul id="socials" class="pull-right">
+                    <li>
+                        <a href="https://facebook.com/pehapkari">
+                            <em class="fab fa-2x fa-facebook"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://twitter.com/pehapkari">
+                            <em class="fab fa-2x fa-twitter"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/friends-of-php-prague/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Praha</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/Pehapkari-Brno/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Brno</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://github.com/pehapkari">
+                            <em class="fab fa-2x fa-github"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ">
+                            <em class="fab fa-2x fa-slack"></em>
+                        </a>
+                        <p>
+                            <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ/">
+                                <span class="hidden-sm-down">Pozvi se</span>
+                                <span class="hidden-md-up">Pozvi</span>
+                            </a>
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="footer_body">
+            <div class="row">
+                <div class="col-6 col-md-4 mb-4 mb-md-0">
+                    <h3>O nás</h3>
+
+                    <ul class="bottom_menu">
+                        <li>
+                            <a href="/kontakt">Kontakt</a>
+                        </li>
+
+                        <li>
+                            <a href="/for-speakers">Pro speakry</a>
+                        </li>
+
+                        <li>
+                            <a href="https://github.com/pehapkari/pehapkari.cz/tree/master/public/assets/pehapkari_logo">Logo</a>
+                        </li>
+
+                        <li>
+                            <a href="/rss.xml">RSS blogu</a>
+                        </li>
+
+                        <li>
+                            <a href="http://bit.ly/pehapkari-newsletter">Sleduj Newsletter</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/build/js/app.js"></script>
+
+<script
+    src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
+<script>
+    $('document').ready(function() {
+        var typed = new Typed('#typed',{
+            stringsElement: '#typed-strings',
+            typeSpeed: 50,
+            backDelay: 1400,
+        });
+    });
+</script>
+
+<script src="/assets/prism/prism.js"></script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-89860072-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-89860072-1');
+</script>
+    </body>
+</html>

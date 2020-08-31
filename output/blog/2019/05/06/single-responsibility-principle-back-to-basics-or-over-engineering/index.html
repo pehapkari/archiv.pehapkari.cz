@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="cs">
+    <head>
+        <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+<meta name="description" content="Otevřené místo pro všechny PHP programátory">
+<meta name="keywords" content="PHP, komunita, programování, srazy, školení, blog, články">
+<meta name="author" content="https://pehapkari.cz">
+<meta name="robots" content="index, follow">
+
+<meta property="og:image" content="/assets/images/meetup.jpg">
+<meta property="fb:pages" content="918297778220033" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<link rel="alternate" type="application/rss+xml" title="Péhápkaři.cz Blog RSS" href="/rss.xml">
+
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&display=swap&subset=latin-ext" rel="stylesheet">
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<link href="/favicon.ico" rel="shortcut icon">
+
+<title>
+     Single Responsibility Principle: Back to basics or over-engineering? | Děláš v PHP? Jsi jedním z nás
+</title>
+
+<link rel="stylesheet" href="/build/css/app.css">
+
+<link rel="stylesheet" href="/assets/prism/prism.css">
+<link rel="stylesheet" href="/assets/prism/prism-custom.css">
+
+<link rel="stylesheet" href="https://use.typekit.net/jmg2upk.css">
+
+<link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,400i|Ubuntu+Mono&amp;subset=latin-ext" rel="stylesheet">
+
+        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    </head>
+
+    <body id="">
+        <nav id="ph-nav" class="navbar fixed-top navbar-expand navbar-light bg-light ph-nav border-bottom hidden-sm-down">
+    <div class="container">
+        <a class="ph-nav__logo" href="/">
+            <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+            <br>
+            <p>Péhápkaři</p>
+        </a>
+
+        <div id="top-menu-search" class="hidden-md-down">
+            <form method="get" action="https://www.google.com/search" itemprop="potentialAction" itemscope="" itemtype="http://schema.org/SearchAction">
+    <meta itemprop="target" content="https://www.google.com/search?q={q}"/>
+    <input name="sitesearch" value="pehapkari.cz" type="hidden"/>
+    <input itemprop="query-input" type="text" id="search-query" class="form-control" required="required" name="q" placeholder="Napiš co hledáš..." autocomplete="off"/>
+</form>
+        </div>
+
+        <ul class="navbar-nav ml-auto hidden-sm-down" id="menu">
+            <li>
+                <a class="active" href="/blog">
+                    Blog
+                </a>
+            </li>
+            <li>
+                <a class="" href="/prehaj-si-prednasku">
+                    Videa
+                </a>
+            </li>
+            <li class="pr-0">
+                <a class="" href="/kontakt">
+                    Kontakt
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div id="mobile-menu" class="row ml-0 mr-0 text-center hidden-md-up border-bottom">
+    <a href="/" class="ph-nav__logo col-3 ">
+        <img src="/assets/pehapkari_logo/logo.svg" alt="logo" title="">
+    </a>
+
+    <a href="/prehaj-si-prednasku" class="col-3 ">
+        Videa
+    </a>
+    <a href="/blog" class="col-3 ">
+        Blog
+    </a>
+</div>
+
+                    <div id="main">
+                
+
+                    <div class="container" id="article">
+        <h1>Single Responsibility Principle: Back to basics or over-engineering?</h1>
+
+        <strong>Svaťa Šimara</strong>
+        &nbsp;
+        <time datetime="2019-05-Mon">
+            6. 5. 2019
+        </time>
+
+        <br>
+
+        <div class="card mt-4 mb-4">
+            <div class="card-body text-bigger">
+                <p>We'll focus on responsibility by answering the question <em>What is it responsible for?</em> or <em>What should it do?</em>
+I find this question one of the most important for software development as it makes easier to decide where should a part of software be.
+We'll cover methods, classes and even modules by the single responsibility principle.</p>
+            </div>
+        </div>
+
+        <p>To be clear we'll not focus on responsibility from the SOLID point of view as <em>reason for change</em>.</p>
+<h2>Money class</h2>
+<p>I worked on a shop system that has to deal also with money.
+We had troubles with money representation (sometimes floats, integers or strings) so we refactored the money concept into a value object to make the concept implicit.
+We represented money as a decimal number, eg. <code>500.50</code> (without currency as it was impossible to refactor also the currency concept in the same time).
+We tested a couple of libraries that deal with money but none of them fitted our use-cases perfectly. So we created a custom value object that is a proxy to a library.</p>
+<p>The Money value object is responsible for dealing with money precisely in the shop.
+It represents money such as <code>500.50</code> and is also responsible for calculations like adding, subtracting, precisely dividing and so on.
+The interface looks like</p>
+<pre><code class="language-php">class Money {
+    public function add(Money $money): Money;
+    public function subtract(Money $scale): Money;
+    public function equals(Money $money): bool;
+    public function getAmount(): string; //eg. "500.50"
+    // ...
+}</code></pre>
+<p>Great so far, a clear single responsibility.</p>
+<h2>Creating money</h2>
+<p>There are two ways to create the money object - from an integer <code>500</code> or from a string <code>"500.50"</code>.
+In the following example, we'll use static constructors.
+Let's discuss two ways of the implementation.</p>
+<h3>One creating method</h3>
+<p>PHP is a dynamic language so there can be only one method that is used for creating the money object</p>
+<pre><code class="language-php">class Money {
+    /**
+     * @param int|string $value
+     */
+    public static function create($value): self {
+        // ...
+    }
+}</code></pre>
+<p>Usage is pretty straightforward</p>
+<pre><code class="language-php">$integerMoney = Money::create(100);
+$stringMoney = Money::create("500.50");
+
+$inputMoney = Money::create($userInput);</code></pre>
+<p>Let's implement the method completely</p>
+<pre><code class="language-php">class Money {
+    // ...
+
+    /**
+     * @param int|string $value
+     * @throws UnsupportedTypeException
+     * @throws MalformedMoneyStringException
+     */
+    public static function create($value): self {
+        if (is_int($value)) {
+            return new self((string) $value);
+        }
+
+        if (is_string($value)) {
+            $this-&gt;validateString($value);
+            return new self($string);
+        }
+        throw new UnsupportedTypeException($value, ['string', 'int']);
+    }
+
+    /**
+     * @throws MalformedMoneyStringException
+     */
+    private function validateString(string $value) {...}
+}</code></pre>
+<p>The <code>create</code> method is responsible for</p>
+<ul>
+<li>creating the money object</li>
+<li>checking the argument type</li>
+<li>throwing an exception when the argument is not supported</li>
+</ul>
+<p>This is quite a lot of responsibilities.
+The method must also throw exceptions and the user must deal with them.</p>
+<h4>Creating from integer</h4>
+<pre><code class="language-php">try {
+    $integerMoney = Money::create(100);
+} catch (UnsupportedTypeException | MalformedMoneyStringException $e) {
+    // do nothing this cannot happen
+}</code></pre>
+<p>We know that we are creating money from integer, and in this case, nothing wrong can happen.
+But due to the method interface, we have to catch exceptions that possibly can be thrown (but never are).
+Really awkward is catching the <code>MalformedMoneyStringException</code> as we are not passing a string.</p>
+<h4>Creating from string</h4>
+<pre><code class="language-php">try {
+    $integerMoney = Money::create("500.50");
+} catch (UnsupportedTypeException $e) {
+    // do nothing this cannot happen
+} catch (MalformedMoneyStringException $e) {
+    // ... deal with the problem
+}</code></pre>
+<p>Creating from the string is a bit more reasonable.
+The input string can be malformed and we have to deal with such a situation.
+But again, the <code>UnsupportedTypeException</code> can't occur, but because of the interface, we have to deal with the exception anyway.</p>
+<p>These problems are caused by the fact <code>create</code> method has multiple responsibilities.
+Let's try to break the responsibility into two methods.</p>
+<h3>Two creating methods</h3>
+<p>We'll have two methods for creating the money object <code>createFromInteger(int)</code> and <code>createFromString(string)</code>.</p>
+<p>Usage will be</p>
+<pre><code class="language-php">$integerMoney = Money::createFromInteger(100);</code></pre>
+<pre><code class="language-php">try {
+    $stringMoney = Money::createFromString("500.50");
+} catch (MalformedMoneyStringException $e) {
+     // ... deal with the problem
+}</code></pre>
+<p>Both methods have a clear responsibility.
+Create money from an integer.
+Create money from a string.</p>
+<p>There is no responsibility for checking the argument type, selecting behavior and throwing an exception when the argument is wrong.</p>
+<p>The implementation</p>
+<pre><code class="language-php">class Money {
+    // ...
+
+    public static function createFromInteger(int $value): self {
+        return new self((string) $value);
+    }
+
+    /**
+     * @throws MalformedMoneyStringException
+     */
+    public static function create(string $value): self {
+        $this-&gt;validateString($value);
+        return new self($string);
+    }
+
+    /**
+     * @throws MalformedMoneyStringException
+     */
+    private function validateString(string $value);
+}</code></pre>
+<p>Such code has a couple of benefits</p>
+<ul>
+<li>simpler</li>
+<li>easy to understand</li>
+<li>fewer exception states</li>
+<li>safer - uses types</li>
+</ul>
+<p>We moved the decision responsibility to the caller, so the caller must know what type is passing.
+But it is natural - the caller knows the argument type anyway, so there is no added effort.</p>
+<h2>JSON Serialization</h2>
+<p>We have a need - to serialize the Money value object to JSON for JavaScript</p>
+<pre><code class="language-json">{ "amount":  "500.50"}</code></pre>
+<p>Let's discuss two implementations and again from the responsibility point of view.</p>
+<h3>Internal serialization</h3>
+<pre><code class="language-php">class Money implements JsonSerializable {
+    // ...
+    public function jsonSerialize(): array
+    {
+        return [
+            'amount' =&gt; $this-&gt;getAmount(),
+        ];
+    }
+}</code></pre>
+<p>This is a quite common approach in PHP, now the caller can use simple</p>
+<pre><code class="language-php">$stringJson = json_encode($money);</code></pre>
+<p>Let's stop for a while. <strong>What does the money class do? What is it responsible for?</strong></p>
+<p>Right now, the class is responsible for dealing with money AND for JSON serialization.
+Once we use AND during explaining the responsibility, we should be alert, maybe we are doing something wrong.</p>
+<p>The danger of mixed responsibility is the class is difficult to understand.
+All methods deal somehow with the money problem and suddenly there is one method that deals with JSON serialization.
+The second responsibility breaks the mental model we build in the head as we are trying to understand the class.</p>
+<p>Mixed responsibility also makes usage more difficult.
+If we want to use JSON as the class provides, it is usable.
+But once we need a different JSON format, we have to change the serialization method first.
+And the class becomes more and more complex.</p>
+<p>To be honest there may be use-cases for the internal JSON serialization.
+If an object is serialized to JSON heavily in the system, then the internal serialization could make sense as it is a common use-case.
+But it is not the money case, at least not in this system.</p>
+<h3>External serialization</h3>
+<pre><code class="language-php">class JsonMoneySerializer {
+    public function serialize(Money $money): string {
+        return [
+            'amount' =&gt; $money-&gt;getAmount(),
+        ];
+        return json_encode($array);
+    }
+}</code></pre>
+<p>Usage</p>
+<pre><code class="language-php">$stringJson = $this-&gt;jsonMoneySerializer-&gt;serialize($money);</code></pre>
+<p>Serializer has a clear responsibility - serializing money to JSON.
+Money class is not changed and is not messed by the serialization code.</p>
+<p>When we'll need a different JSON structure, we'll create a new serializer.
+We won't have to touch the current code, so we're less likely to break it.
+We end up with short, even dumb, code that is easy to understand and combine.</p>
+<h2>Price module</h2>
+<p>We have a module that is responsible for the price.
+It answers questions like</p>
+<ul>
+<li><em>What is the price of the product?</em></li>
+<li><em>What is the price of the shipping?</em></li>
+<li><em>What is the overall price of the order?</em></li>
+</ul>
+<p>Now we have a new use case <em>Sort products by price</em>.
+Should this behavior be a part of the pricing module?
+Well maybe yes and maybe no.</p>
+<p>A good practice I found is to put this new responsibility into a separate module that uses the price module.
+As we understand more, we may find that the separation was a good idea because the new module is at the end responsible for preparing data for the web,
+caching, and that is a clear separated responsibility.</p>
+<p>If we add this new responsibility into an existing module, it will start growing.
+<em>Where should I put price caching?</em> Into the price module, it deals with price.
+<em>Where should I put preparing price data for web?</em> Into the price module, it still fits there.
+And we end up with one huge module that has multiple responsibilities, is difficult to understand and nearly impossible to maintain as all pieces depend on each other.</p>
+<h3>When splitting doesn't make sense</h3>
+<p>On the other hand, we may later find that this new module was never used for anything else than sorting and that it would be more meaningful
+to have the functionality within the price module.
+In such a case, it is a good idea to merge these two modules into one with extended responsibility.</p>
+<p>The trick is that merging two modules into one is often much easier than splitting one module into two.
+So generally I suggest starting with a separated module for a responsibility that seems to not fit into an existing module
+while keeping an option to merge them later.</p>
+<h2>Single responsibility of a variable</h2>
+<p>Let's read following code</p>
+<pre><code class="language-php">$object = new Category($categoryId, $categoryName);
+$this-&gt;persist($object);
+
+$object = new Article($articleId, $text);
+$this-&gt;persist($object);</code></pre>
+<p>What is the responsibility of the <code>$object</code> variable?
+Or what does the <code>$object</code> variable contain?
+It contains category or article depending on what time are we asking for.</p>
+<p>This is a common violation of single responsibility caused by reusing variables.
+The solution is simple and obvious</p>
+<pre><code class="language-php">$category = new Category($categoryId, $categoryName);
+$this-&gt;persist($category);
+
+$article = new Article($articleId, $text);
+$this-&gt;persist($article);</code></pre>
+<p>This small refactoring caused completely clear variable responsibility.
+The code is so easy to understand that we can call it even boring.</p>
+<h2>Over-engineering</h2>
+<p>If we take a single responsibility too far, it is easy to over-engineer the code.</p>
+<p><em>Should be adding money responsibility of the Money class?</em>
+Once we answer no, crazy things can happen.
+We can come up with <code>MoneyAdder</code>, <code>MoneySubtractor</code>, <code>MoneyMultiplier</code>, <code>MoneyComparer</code>, <code>IntegerMoneyFactory</code> and so on and so on.
+And that is usually a sign of over-engineering.</p>
+<h2>Conclusion</h2>
+<p>Code that follows the single responsibility principle is easy to read, understand, use and change.
+We have to think about responsibilities in all scales - variables, methods, classes, and even modules.
+We should keep asking <em>What should it do?</em> <em>What does it do?</em> <em>What is it responsible for?</em>
+Once we use AND during answering, we know there is something fishy.</p>
+<p>So what do you think?
+Back to basics or over-engineering?</p>
+<h2>Contact</h2>
+<p>Do you struggle with difficult code and like the Single Responsibility approach? Hire me, I can help you - <a href="http://svatasimara.cz/">svatasimara.cz</a></p>
+
+        <br>
+
+        <div class="container">
+            <div id="disqus_thread"></div>
+
+<script type="text/javascript">
+    /**
+     *  RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+     *  LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+     */
+    (function() {  // DON'T EDIT BELOW THIS LINE
+        var d = document, s = d.createElement('script');
+
+        s.src = '//pehapkari.disqus.com/embed.js';
+
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+        </div>
+
+        <br>
+    </div>
+
+            </div>
+        
+        <div id="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-6 mt-3 mt-md-0">
+                <p class="mb-2">Web Péhápkaři.cz pohání <a href="https://symfony.com/">Symfony</a> a najdeš ho na <a href="https://github.com/pehapkari/pehapkari.cz">Githubu</a>.</p>
+
+                                            </div>
+
+            <div class="col-12 col-md-6 mt-4 mt-md-0">
+                <ul id="socials" class="pull-right">
+                    <li>
+                        <a href="https://facebook.com/pehapkari">
+                            <em class="fab fa-2x fa-facebook"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://twitter.com/pehapkari">
+                            <em class="fab fa-2x fa-twitter"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/friends-of-php-prague/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Praha</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://meetup.com/Pehapkari-Brno/">
+                            <em class="fab fa-2x fa-meetup"></em>
+                            <p>Brno</p>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://github.com/pehapkari">
+                            <em class="fab fa-2x fa-github"></em>
+                        </a>
+                    </li>
+
+                    <li>
+                        <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ">
+                            <em class="fab fa-2x fa-slack"></em>
+                        </a>
+                        <p>
+                            <a href="https://join.slack.com/t/pehapkari/shared_invite/zt-b5kiu8w2-iqDCp8btryFmXeKiL21fXQ/">
+                                <span class="hidden-sm-down">Pozvi se</span>
+                                <span class="hidden-md-up">Pozvi</span>
+                            </a>
+                        </p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="footer_body">
+            <div class="row">
+                <div class="col-6 col-md-4 mb-4 mb-md-0">
+                    <h3>O nás</h3>
+
+                    <ul class="bottom_menu">
+                        <li>
+                            <a href="/kontakt">Kontakt</a>
+                        </li>
+
+                        <li>
+                            <a href="/for-speakers">Pro speakry</a>
+                        </li>
+
+                        <li>
+                            <a href="https://github.com/pehapkari/pehapkari.cz/tree/master/public/assets/pehapkari_logo">Logo</a>
+                        </li>
+
+                        <li>
+                            <a href="/rss.xml">RSS blogu</a>
+                        </li>
+
+                        <li>
+                            <a href="http://bit.ly/pehapkari-newsletter">Sleduj Newsletter</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/build/js/app.js"></script>
+
+<script
+    src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.11"></script>
+<script>
+    $('document').ready(function() {
+        var typed = new Typed('#typed',{
+            stringsElement: '#typed-strings',
+            typeSpeed: 50,
+            backDelay: 1400,
+        });
+    });
+</script>
+
+<script src="/assets/prism/prism.js"></script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-89860072-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-89860072-1');
+</script>
+    </body>
+</html>
