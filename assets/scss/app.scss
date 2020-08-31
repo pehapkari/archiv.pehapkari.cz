@@ -300,17 +300,6 @@ footer .rounded-circle {
     width: 2.7em;
 }
 
-#trainings q.blockquote {
-    line-height: 1.5em;
-}
-
-#trainings .term {
-    color: #333;
-    font-size: .7em;
-    margin-top: -1em;
-}
-
-
 
 #gallery {
     max-width: 40em;
@@ -551,18 +540,6 @@ p strong {
     }
 }
 
-#training_trainer_card {
-    margin: 2em 0 4em 0;
-    text-align: center;
-
-    h2 {
-        margin-top: 0;
-    }
-
-    p {
-        margin: auto;
-    }
-}
 
 
 @include media-breakpoint-down(md) {

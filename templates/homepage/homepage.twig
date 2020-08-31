@@ -19,10 +19,6 @@
             🎉
         </p>
 
-        <div id="welcome_image" class="shadow">
-            <img src="{{ asset('assets/images/homepage/homepage.jpg') }}" alt="">
-        </div>
-
         <p class="submain_headline">
             Tady najdeš komunitu lidí, kteří mají PHP rádi a pracují s ním každý den.
         </p>
@@ -77,37 +73,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <div class="container text-center" id="team">
-        <h2 class="mb-5">Bez týmu aktivních lidí by to nešlo!</h2>
-
-        <div class="row mb-4" id="organizers">
-            {# @var organizer \Pehapkari\ValueObject\Organizer #}
-            {% for organizer in organizers %}
-                <div class="col-lg-3 col-md-4 col-sm-4 col-6 mb-5">
-                    {% set photoUrl %}{% if organizer.photo matches "#http#" %}{{ organizer.photo }}{% else %}/assets/images/people/{{ organizer.photo }}{% endif %}{% endset %}
-
-                    <img src="{{ photoUrl }}" class="rounded-circle" width="150" height="150" alt="">
-
-                    <h3 class="mt-3">
-                        {% if organizer.url is defined %}<a href="{{ organizer.url }}">{% endif %}
-                            {{ organizer.name|raw }}
-                            {% if organizer.url is defined %}</a>{% endif %}
-                    </h3>
-
-                    <p>
-                        {{ organizer.responsibility|raw }}
-                    </p>
-
-                    {% if organizer.company is defined %}
-                        {% if organizer.companyUrl is defined %}<a href="{{ organizer.companyUrl }}">{% endif %}
-                        <strong>{{ organizer.company }}</strong>
-                        {% if organizer.companyUrl is defined %}</a>{% endif %}
-                    {% endif %}
-                </div>
-            {% endfor %}
         </div>
     </div>
 {% endblock %}

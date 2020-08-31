@@ -17,11 +17,6 @@
                 </a>
             </li>
             <li>
-                <a class="{{ active_item(['trainings', 'training_detail', 'place_detail', 'registration']) }}" href="{{ path('trainings') }}">
-                    Školení
-                </a>
-            </li>
-            <li>
                 <a class="{{ active_item(['videos', 'livestream', 'video_detail', 'videos_php_prague']) }}" href="{{ path('videos') }}">
                     Videa
                 </a>
@@ -41,9 +36,6 @@
         <img src="{{ asset('assets/pehapkari_logo/logo.svg') }}" alt="logo" title="">
     </a>
 
-    <a href="{{ path('trainings') }}" class="col-3 {{ active_item(['trainings', 'become_trainer', 'training_detail'])}}">
-        Školení
-    </a>
     <a href="{{ path('videos') }}" class="col-3 {{ active_item(['videos', 'livestream', 'videos_php_prague', 'video_detail']) }}">
         Videa
     </a>
