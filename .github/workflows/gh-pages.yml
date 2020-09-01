@@ -1,0 +1,28 @@
+name: Github pages
+
+on:
+    push:
+        branches:
+            - master
+
+jobs:
+    deploy:
+        runs-on: ubuntu-18.04
+        steps:
+            - uses: actions/checkout@v2
+            - uses: shivammathur/setup-php@v1
+              with:
+                php-version: 7.4
+                coverage: none # default is xdebug
+
+            - run: composer install --prefer-dist --no-progress --no-suggest --no-interaction --optimize
+
+            # TODO: yarn install
+
+            - run: php bin/console dump-static-site
+
+            - name: Deploy
+              uses: peaceiris/actions-gh-pages@v3
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  publish_dir: ./output
