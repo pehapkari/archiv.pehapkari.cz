@@ -16,8 +16,8 @@ jobs:
                 coverage: none # default is xdebug
 
             - run: composer install --prefer-dist --no-progress --no-suggest --no-interaction --optimize-autoloader
-
-            # TODO: yarn install
+            - run: yarn install
+            - run: yarn run build
 
             - run: php bin/console dump-static-site
 
