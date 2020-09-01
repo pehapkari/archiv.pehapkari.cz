@@ -9,7 +9,7 @@ fi
 # Permissions hack because setfacl does not work on Mac and Windows
 chmod 777 -R var
 
-composer install --prefer-dist --no-progress --no-suggest --no-interaction --optimize
+composer install --prefer-dist --no-progress --no-suggest --no-interaction --optimize-autoloader
 
 ## bin/console assets:install ## is run automatically - check composer.json scripts:auto-scripts
 

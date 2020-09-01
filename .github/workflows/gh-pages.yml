@@ -15,7 +15,7 @@ jobs:
                 php-version: 7.4
                 coverage: none # default is xdebug
 
-            - run: composer install --prefer-dist --no-progress --no-suggest --no-interaction --optimize
+            - run: composer install --prefer-dist --no-progress --no-suggest --no-interaction --optimize-autoloader
 
             # TODO: yarn install
 
