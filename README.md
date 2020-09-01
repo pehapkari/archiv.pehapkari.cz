@@ -39,3 +39,5 @@ This command generates static files, into **/output** directory:
 ```
 bin/console dump-static-site
 ```
+
+It is automatically built and released using CI via Github Actions.
