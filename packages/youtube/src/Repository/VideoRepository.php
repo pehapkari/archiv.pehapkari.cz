@@ -144,6 +144,15 @@ final class VideoRepository
             $slugs[] = $video->getSlug();
         }
 
+        /** @var RecordedMeetup[]|RecordedConference[] $recodedEvents */
+        $recodedEvents = [...$this->recordedMeetups, ...$this->recordedConferences];
+
+        foreach ($recodedEvents as $recodedEvent) {
+            foreach ($recodedEvent->getVideos() as $video) {
+                $slugs[] = $video->getSlug();
+            }
+        }
+
         return $slugs;
     }
 
