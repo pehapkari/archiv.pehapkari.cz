@@ -9,6 +9,7 @@ use Pehapkari\Youtube\Repository\VideoRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symplify\SymfonyStaticDumper\Contract\ControllerWithDataProviderInterface;
 
 final class VideoDetailController extends AbstractController implements ControllerWithDataProviderInterface
 {
@@ -31,5 +32,23 @@ final class VideoDetailController extends AbstractController implements Controll
         } catch (VideoNotFoundException $videoNotFoundException) {
             throw $this->createNotFoundException($videoNotFoundException->getMessage(), $videoNotFoundException);
         }
+    }
+
+    public function getControllerClass(): string
+    {
+        return self::class;
+    }
+
+    public function getControllerMethod(): string
+    {
+        return '__invoke';
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getArguments(): array
+    {
+        return $this->videoRepository->getAllSlugs();
     }
 }

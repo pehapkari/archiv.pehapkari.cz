@@ -134,6 +134,20 @@ final class VideoRepository
     }
 
     /**
+     * @return string[]
+     */
+    public function getAllSlugs(): array
+    {
+        $slugs = [];
+
+        foreach ($this->livestreamVideos as $video) {
+            $slugs[] = $video->getSlug();
+        }
+
+        return $slugs;
+    }
+
+    /**
      * @return RecordedMeetup[]
      */
     private function createRecordedMeetups(
