@@ -1,7 +1,7 @@
 {
-  "build/css/app.css": "/build/css/app.css",
-  "build/js/app.js": "/build/js/app.js",
-  "build/runtime.js": "/build/runtime.js",
+  "build/css/app.css": "/build/css/app.86e96c5c.css",
+  "build/js/app.js": "/build/js/app.78e31948.js",
+  "build/runtime.js": "/build/runtime.d94b3b43.js",
   "build/fonts/fa-brands-400.ttf": "/build/fonts/fa-brands-400.085b1dd8.ttf",
   "build/fonts/fa-brands-400.eot": "/build/fonts/fa-brands-400.0fabb660.eot",
   "build/fonts/fa-brands-400.woff2": "/build/fonts/fa-brands-400.cac68c83.woff2",

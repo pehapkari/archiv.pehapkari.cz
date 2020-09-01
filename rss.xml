@@ -8,7 +8,7 @@
         <title>Péhápkaři Blog</title>
         <link>http://localhost/blog</link>
         <description>Most recent posts published on the Péhápkaři blog</description>
-        <pubDate>Mon, 31 Aug 2020 23:54:05 +0000</pubDate>
+        <pubDate>Tue, 01 Sep 2020 10:57:25 +0000</pubDate>
         <atom:link href="http://localhost/rss.xml" rel="self" type="application/rss+xml" />
 
                                     <lastBuildDate>Thu, 31 Dec 2020 00:00:00 +0000</lastBuildDate>
@@ -271,6 +271,18 @@ We&#039;ll cover a domain service and domain factory in this article and when to
                                 
             
                             <item>
+                    <title><![CDATA[ Symfony 4 - Ako v praxi funguje Flex ]]></title>
+                    <link>https://pehapkari.cz/blog/2018/03/21/symfony-4-ako-v-praxi-funguje-flex</link>
+                    <description><![CDATA[ Ako titulka napovedá, pozrieme sa spoločne na jednu z mnohých skvelých noviniek, ktorú priniesol framework Symfony vo svojej štvrtej verzii. Pokúsim sa Vám priblížiť, čo Symfony Flex vlastne je a ako pracuje.
+ ]]></description>
+                    <guid isPermaLink="false">https://pehapkari.cz/blog/2018/03/21/symfony-4-ako-v-praxi-funguje-flex</guid>
+                    <dc:creator><![CDATA[ Eduard Barnáš ]]></dc:creator>
+                    <pubDate>Wed, 21 Mar 2018 00:00:00 +0000</pubDate>
+                    <comments>https://pehapkari.cz/blog/2018/03/21/symfony-4-ako-v-praxi-funguje-flex#disqus_thread</comments>
+                </item>
+                                
+            
+                            <item>
                     <title><![CDATA[ Domain-Driven Design, part 7 - Alternative Relational Database Mapping ]]></title>
                     <link>https://pehapkari.cz/blog/2018/03/21/domain-driven-design-alternative-mapping</link>
                     <description><![CDATA[ Do you think that multilingual text must always be in a separate database table? Than this article is for you!
@@ -282,18 +294,6 @@ And we will also show the Doctrine implementation.
                     <dc:creator><![CDATA[ Svaťa Šimara ]]></dc:creator>
                     <pubDate>Wed, 21 Mar 2018 00:00:00 +0000</pubDate>
                     <comments>https://pehapkari.cz/blog/2018/03/21/domain-driven-design-alternative-mapping#disqus_thread</comments>
-                </item>
-                                
-            
-                            <item>
-                    <title><![CDATA[ Symfony 4 - Ako v praxi funguje Flex ]]></title>
-                    <link>https://pehapkari.cz/blog/2018/03/21/symfony-4-ako-v-praxi-funguje-flex</link>
-                    <description><![CDATA[ Ako titulka napovedá, pozrieme sa spoločne na jednu z mnohých skvelých noviniek, ktorú priniesol framework Symfony vo svojej štvrtej verzii. Pokúsim sa Vám priblížiť, čo Symfony Flex vlastne je a ako pracuje.
- ]]></description>
-                    <guid isPermaLink="false">https://pehapkari.cz/blog/2018/03/21/symfony-4-ako-v-praxi-funguje-flex</guid>
-                    <dc:creator><![CDATA[ Eduard Barnáš ]]></dc:creator>
-                    <pubDate>Wed, 21 Mar 2018 00:00:00 +0000</pubDate>
-                    <comments>https://pehapkari.cz/blog/2018/03/21/symfony-4-ako-v-praxi-funguje-flex#disqus_thread</comments>
                 </item>
                                 
             
@@ -808,20 +808,6 @@ Fortunately, thanks for Michal Špaček&#039;s ability to explain complex stuff 
                                 
             
                             <item>
-                    <title><![CDATA[ PHP u nás čeká rok expanze ]]></title>
-                    <link>https://pehapkari.cz/blog/2017/03/02/php-u-nas-ceka-rok-expanze</link>
-                    <description><![CDATA[ Za minulý rok naše php komunita vyrostla jako nikdy předtím. Přestali jsem řešit, kdo má větší framework, **začali jsme sdílet online i offline a spojovat se napříč republikou**. Mám z toho ohromnou radost!
-
-Dnes se s tebou chci podělit o to, kam jsme zatím došli a jaká velká cesta nás ještě čeká.
- ]]></description>
-                    <guid isPermaLink="false">https://pehapkari.cz/blog/2017/03/02/php-u-nas-ceka-rok-expanze</guid>
-                    <dc:creator><![CDATA[ Tomáš Votruba ]]></dc:creator>
-                    <pubDate>Thu, 02 Mar 2017 00:00:00 +0000</pubDate>
-                    <comments>https://pehapkari.cz/blog/2017/03/02/php-u-nas-ceka-rok-expanze#disqus_thread</comments>
-                </item>
-                                
-            
-                            <item>
                     <title><![CDATA[ Drop RobotLoader and let Composer Deal with Autoloading ]]></title>
                     <link>https://pehapkari.cz/blog/2017/03/02/drop-robot-loader-and-let-composer-deal-with-autoloading</link>
                     <description><![CDATA[ Using 2 tools for one thing, in this case 2 packages to autoload classes, are sign of an architecture smell. Many applications I see contain RobotLoader for historical reasons. I will borrow this from psychology: pathological behavioral patterns tear us down in the present, but were useful in past.
@@ -832,6 +818,20 @@ The best way to deal with them is acknowledge their purpose and then, let them g
                     <dc:creator><![CDATA[ Tomáš Votruba ]]></dc:creator>
                     <pubDate>Thu, 02 Mar 2017 00:00:00 +0000</pubDate>
                     <comments>https://pehapkari.cz/blog/2017/03/02/drop-robot-loader-and-let-composer-deal-with-autoloading#disqus_thread</comments>
+                </item>
+                                
+            
+                            <item>
+                    <title><![CDATA[ PHP u nás čeká rok expanze ]]></title>
+                    <link>https://pehapkari.cz/blog/2017/03/02/php-u-nas-ceka-rok-expanze</link>
+                    <description><![CDATA[ Za minulý rok naše php komunita vyrostla jako nikdy předtím. Přestali jsem řešit, kdo má větší framework, **začali jsme sdílet online i offline a spojovat se napříč republikou**. Mám z toho ohromnou radost!
+
+Dnes se s tebou chci podělit o to, kam jsme zatím došli a jaká velká cesta nás ještě čeká.
+ ]]></description>
+                    <guid isPermaLink="false">https://pehapkari.cz/blog/2017/03/02/php-u-nas-ceka-rok-expanze</guid>
+                    <dc:creator><![CDATA[ Tomáš Votruba ]]></dc:creator>
+                    <pubDate>Thu, 02 Mar 2017 00:00:00 +0000</pubDate>
+                    <comments>https://pehapkari.cz/blog/2017/03/02/php-u-nas-ceka-rok-expanze#disqus_thread</comments>
                 </item>
                                 
             

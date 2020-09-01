@@ -28,7 +28,7 @@
      Jak hromadně spravovat privátní composer balíčky | Děláš v PHP? Jsi jedním z nás
 </title>
 
-<link rel="stylesheet" href="/build/css/app.css">
+<link rel="stylesheet" href="/build/css/app.86e96c5c.css">
 
 <link rel="stylesheet" href="/assets/prism/prism.css">
 <link rel="stylesheet" href="/assets/prism/prism-custom.css">
@@ -156,18 +156,15 @@
 <p>Nejdříve si načtete aplikaci pomocí <code>composer install –-prefer-source</code>, což vám <strong>načte balíčky včetně git repozitářů</strong>, takže nad nimi můžete pracovat, přepínat větve, přidávat tagy atd. Pokud chcete upravovat jen konkrétní balíčky, <strong>je lepší zavolat <code>composer update namespace/package --prefer-source</code> nad konkrétním balíčkem</strong>, protože jinak se stahují všechny balíčky z composer včetně git meta dat a tato akce může nějakou dobu trvat, obzvláště pokud máte hodně závislostí.</p>
 <p>Poté jednoduše přidáte v phpstormu repozitáře do jeho správy.</p>
 <div class="text-center">
-     <img src="/assets/images/posts/2017/composer/git.png">
- </div>
+     <img src="/assets/images/posts/2017/composer/git.png"></div>
 <p><br/></p>
 <p>Tím se dostáváme k tomu <strong>největšímu usnadnění</strong>. Teď již můžeme dělat změny ve všech balíčcích v jednom projektu. Pro usnadnění je dobré ještě v nastavení phpstormu zaškrtnout volbu <strong>control repositories synchronously</strong>, která vám umožní pracovat s větvemi jako by to byla jedna. <strong>Tzn. pokud vytvoříte jednu větev test, vytvoří se ve všech repozitářích a udělá se checkout.</strong></p>
 <div class="text-center">
-      <img src="/assets/images/posts/2017/composer/synchro.png">
-  </div>
+      <img src="/assets/images/posts/2017/composer/synchro.png"></div>
 <p><br/></p>
 <p><strong>PhpStorm tedy umí pracovat s několika git repozitáři současně.</strong> Pro práci doporučuji vytvořit novou větev, což lze udělat jednoduše a phpstorm už se postará o zbytek. Dole na obrázku vidíte že se mi automaticky všechny repozitáře přeply do větve test. Commit a push probíha obdobně.</p>
 <div class="text-center">
-     <img src="/assets/images/posts/2017/composer/branch.png">
- </div>
+     <img src="/assets/images/posts/2017/composer/branch.png"></div>
 <p><br/></p>
 <p>Pak už jen stačí vytvořit tag a profit.</p>
 <p><em>Tip na závěr:</em> pro hromadný update repozitářů z remote doporučuji plugin <strong><a href="https://plugins.jetbrains.com/plugin/7835-git-extender">git extender</a></strong></p>
@@ -287,7 +284,7 @@
     </div>
 </div>
 
-<script src="/build/js/app.js"></script>
+<script src="/build/js/app.78e31948.js"></script>
 
 <script
     src="https://code.jquery.com/jquery-3.4.1.min.js"

@@ -28,7 +28,7 @@
      How we Migrated 54 357-lines Application from Nette to Symfony in 2 People under 80 Hours | Děláš v PHP? Jsi jedním z nás
 </title>
 
-<link rel="stylesheet" href="/build/css/app.css">
+<link rel="stylesheet" href="/build/css/app.86e96c5c.css">
 
 <link rel="stylesheet" href="/assets/prism/prism.css">
 <link rel="stylesheet" href="/assets/prism/prism-custom.css">
@@ -113,8 +113,7 @@
         <p><em>This post was originally published <a href="https://www.zdrojak.cz/clanky/50k-radku-z-nette-do-symfony/">in Czech on Zdrojak.cz</a>, where it got huge attention of Czech PHP community and hit amazing 54 comments (a possible record). But when I talk about this migration with my English speaking PHP friends, it seems crazy to them and they want to hear details - who, how, when, what exactly?</em></p>
 <p><em>This post is for you (and for you of course, if you haven't read it on Zdroják).</em></p>
 <div class="text-center">
-<img src="/assets/images/posts/2019/fw-migration/nette-to-symfony.png">
-</div>
+<img src="/assets/images/posts/2019/fw-migration/nette-to-symfony.png"></div>
 <h2>What Have We Migrated?</h2>
 <p>Backend of <a href="https://entry.do/">Entry.do</a> project - API application built on controllers, routing, Kdyby integrations of Symfony, Doctrine and a few Latte templates. The application has been running in production for last 4 years. We migrated from Nette 2.4 to Symfony&nbsp;4.2.</p>
 <p>How big is it? If we don't count tests, migration, fixtures, etc., the application has <strong>270 PHP files</strong> in the length of <strong>54 357 lines</strong> (using <a href="https://github.com/sebastianbergmann/phploc">phploc</a>).</p>
@@ -123,14 +122,10 @@ Just to have an idea, the pehapkari.cz website has 35 routes.</p>
 <h2>Why?</h2>
 <p>The application was written in Nette, which worked and met the technical requirements. The main motivation for the transcription was the dying ecosystem and that over-integration of Symfony. What does &quot;dying ecosystem&quot; mean? Nette released just 1 minor version since July 2016, while Symfony had 6 releases during the same period.</p>
 <div class="text-center mb-4">
-    <img src="/assets/images/posts/2019/fw-migration/extensions.png">
-    <br>
-    <em>80% of the extensions are just glue integrations of Symfony and Doctrine</em>
+    <img src="/assets/images/posts/2019/fw-migration/extensions.png"><br><em>80% of the extensions are just glue integrations of Symfony and Doctrine</em>
 </div>
 <div class="text-center mb-4">
-    <img src="/assets/images/posts/2019/fw-migration/nette-symfony.png">
-    <br>
-    <em>Nette was just Controllers, Routing and Dependency-Injection</em>
+    <img src="/assets/images/posts/2019/fw-migration/nette-symfony.png"><br><em>Nette was just Controllers, Routing and Dependency-Injection</em>
 </div>
 <p>Why use unmaintained integrations of <a href="https://github.com/kdyby">Kdyby</a> and <a href="https://github.com/zenify">Zenify</a>, that only integrate Symfony to Nette\DI, if Symfony is already there? Last new minor version of Nette was published 3 years ago. Symfony releases new minor version every 6 months with new features will make your work easier.</p>
 <h2>How?</h2>
@@ -299,8 +294,7 @@ final class FirstServiceFactory
 <h2>Rename Event Names</h2>
 <p>We also cannot forget the rename of events from Contribute\Events to Symfony <a href="https://symfony.com/doc/current/reference/events.html%23kernel-events">KernelEvents</a>:</p>
 <div class="text-center">
-    <img src="/assets/images/posts/2019/fw-migration/event-rename.png">
-</div>
+    <img src="/assets/images/posts/2019/fw-migration/event-rename.png"></div>
 <h2>From <code>RouterFactory</code> to Controller <code>@Route</code> annotation</h2>
 <p>RouteFactory is <a href="https://github.com/nette/sandbox/blob/06a92123fb6a1d82de38037436ca06484afec8dc/app/Router/RouterFactory.php">single class</a> in Nette to define all routes for all controllers and their actions. In Symfony, this is quite the opposite. You define the routes directly at the Controller action. And to make matters worse it <a href="https://symfony.com/doc/current/routing.html%23creating-routes">uses annotation</a>.</p>
 <p>What with this? Well, one option is to move one route at a time - <strong>all 151</strong>. To make it even more challenging, we had our own <code>RestRoute</code> and our own <code>RouteList</code>, including POST/GET/..., which Nette doesn't have.</p>
@@ -471,7 +465,7 @@ vendor/bin/rector process app src --level nette-to-symfony</code></pre>
     </div>
 </div>
 
-<script src="/build/js/app.js"></script>
+<script src="/build/js/app.78e31948.js"></script>
 
 <script
     src="https://code.jquery.com/jquery-3.4.1.min.js"
